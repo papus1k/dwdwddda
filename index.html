@@ -7,7 +7,1093 @@
   <meta name="theme-color" content="#0a0e13">
   <title>Дневник токаря — режимы, допуски, резьба, ЧПУ</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f6a723'/%3E%3Cpath d='M18 20h28v7H35v22h-8V27H18z' fill='%231b1200'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="styles.css">
+  <style>
+/* ============================================================
+   ДНЕВНИК ТОКАРЯ — стили
+   ============================================================ */
+
+* { box-sizing: border-box; }
+
+:root {
+  color-scheme: dark;
+  --bg: #080c11;
+  --bg-soft: #0c1219;
+  --panel: #101820;
+  --panel-2: #141e28;
+  --panel-3: #1a2633;
+  --panel-4: #213042;
+  --line: #22303f;
+  --line-soft: #1a2632;
+  --text: #e8eef6;
+  --muted: #96a9bd;
+  --dim: #6f8297;
+  --accent: #f6a723;
+  --accent-2: #ffd166;
+  --accent-soft: rgba(246, 167, 35, .13);
+  --cyan: #4cc9f0;
+  --cyan-soft: rgba(76, 201, 240, .12);
+  --green: #36d399;
+  --green-soft: rgba(54, 211, 153, .12);
+  --red: #ff7070;
+  --red-soft: rgba(255, 112, 112, .12);
+  --violet: #a78bfa;
+  --violet-soft: rgba(167, 139, 250, .12);
+  --shadow: 0 18px 45px rgba(0, 0, 0, .35);
+  --shadow-sm: 0 8px 22px rgba(0, 0, 0, .22);
+  --radius: 16px;
+  --radius-sm: 11px;
+  --sidebar: 272px;
+  --topbar-bg: rgba(8, 12, 17, .82);
+  --code-bg: #070b10;
+  --code-text: #d3e3f3;
+  --font: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+  --mono: "Cascadia Mono", "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+  --bg: #eef1f5;
+  --bg-soft: #e5eaf1;
+  --panel: #ffffff;
+  --panel-2: #f8fafc;
+  --panel-3: #eef2f8;
+  --panel-4: #e3eaf3;
+  --line: #d3dce7;
+  --line-soft: #e2e9f1;
+  --text: #17212b;
+  --muted: #526476;
+  --dim: #7a8b9d;
+  --accent: #d17d00;
+  --accent-2: #9c5c00;
+  --accent-soft: rgba(209, 125, 0, .12);
+  --cyan: #087ea4;
+  --cyan-soft: rgba(8, 126, 164, .1);
+  --green: #0f8f66;
+  --green-soft: rgba(15, 143, 102, .1);
+  --red: #cf3f3f;
+  --red-soft: rgba(207, 63, 63, .1);
+  --violet: #6d4ccf;
+  --violet-soft: rgba(109, 76, 207, .1);
+  --shadow: 0 18px 40px rgba(31, 45, 61, .1);
+  --shadow-sm: 0 8px 20px rgba(31, 45, 61, .07);
+  --topbar-bg: rgba(238, 241, 245, .85);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(1100px 600px at 88% -8%, rgba(246, 167, 35, .07), transparent 62%),
+    radial-gradient(900px 520px at -5% 105%, rgba(76, 201, 240, .055), transparent 62%),
+    var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+html[data-theme="light"] body {
+  background:
+    radial-gradient(1100px 600px at 88% -8%, rgba(209, 125, 0, .08), transparent 62%),
+    radial-gradient(900px 520px at -5% 105%, rgba(8, 126, 164, .05), transparent 62%),
+    var(--bg);
+}
+
+::selection { background: var(--accent); color: #1b1200; }
+
+a { color: var(--accent-2); }
+button, input, select, textarea { font: inherit; }
+svg { display: block; }
+h1, h2, h3, h4, p { margin-top: 0; }
+
+/* ---------------- каркас ---------------- */
+.app { min-height: 100vh; }
+
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 50;
+  width: var(--sidebar);
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border-right: 1px solid var(--line);
+  overflow-y: auto;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 20px 18px;
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.logo-mark {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: linear-gradient(140deg, var(--accent-2), var(--accent) 60%, #ef7d00);
+  color: #1b1200;
+  font-weight: 800;
+  font-size: 23px;
+  box-shadow: 0 8px 20px rgba(246, 167, 35, .22);
+}
+
+.logo-text { display: flex; flex-direction: column; line-height: 1.15; }
+.logo-text b { font-size: 17px; letter-spacing: .08em; }
+.logo-text b span { color: var(--accent); font-size: 11px; letter-spacing: .12em; vertical-align: super; margin-left: 3px; }
+.logo-text small { color: var(--dim); font-size: 11px; margin-top: 4px; letter-spacing: .03em; }
+
+.nav { padding: 12px 12px 20px; flex: 1; }
+.nav-group {
+  margin: 16px 10px 6px;
+  color: var(--dim);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+.nav-group:first-child { margin-top: 4px; }
+
+.nav-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin: 2px 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 14px;
+  transition: background .16s, color .16s, transform .16s;
+}
+.nav-link:hover { background: var(--panel-3); color: var(--text); }
+.nav-link.active {
+  background: linear-gradient(90deg, var(--accent-soft), transparent);
+  color: var(--accent-2);
+}
+.nav-link.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 9px;
+  bottom: 9px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+.nav-link .icon { width: 19px; height: 19px; flex: 0 0 19px; }
+.nav-link.active .icon { color: var(--accent); }
+.nav-link .nav-count {
+  margin-left: auto;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--panel-3);
+  color: var(--dim);
+  font: 10.5px/1.6 var(--mono);
+}
+
+.sidebar-foot { padding: 16px 18px 20px; border-top: 1px solid var(--line-soft); }
+.sidebar-note {
+  display: flex;
+  gap: 9px;
+  color: var(--dim);
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+.sidebar-note .dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+.sidebar-version { margin-top: 12px; color: var(--dim); font: 10.5px/1.4 var(--mono); opacity: .7; }
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background: rgba(0, 0, 0, .55);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+}
+body.sidebar-open .overlay { opacity: 1; pointer-events: auto; }
+
+.main {
+  min-height: 100vh;
+  margin-left: var(--sidebar);
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 74px;
+  padding: 12px 30px;
+  background: var(--topbar-bg);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(14px);
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.topbar .titles { min-width: 0; }
+.topbar h1 { margin: 0; font-size: 21px; line-height: 1.2; letter-spacing: -.01em; }
+.topbar .sub {
+  margin-top: 3px;
+  color: var(--dim);
+  font-size: 11.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.today { color: var(--dim); font-size: 12px; white-space: nowrap; }
+
+.icon-btn {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-2);
+  color: var(--muted);
+  cursor: pointer;
+  transition: background .16s, color .16s, border-color .16s;
+}
+.icon-btn:hover { background: var(--panel-3); color: var(--text); border-color: var(--panel-4); }
+.menu-btn { display: none; font-size: 18px; }
+
+.view {
+  width: 100%;
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 28px 30px 64px;
+  flex: 1;
+  outline: none;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 30px 26px;
+  border-top: 1px solid var(--line-soft);
+  color: var(--dim);
+  font-size: 11px;
+}
+
+/* ---------------- типографика ---------------- */
+.page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+.page-head h2 { margin: 0 0 4px; font-size: 27px; letter-spacing: -.02em; }
+.page-head p { max-width: 760px; margin: 0; color: var(--muted); font-size: 13.5px; }
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 8px;
+  color: var(--accent);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+.eyebrow::before { content: ""; width: 18px; height: 1px; background: var(--accent); }
+.muted { color: var(--muted); }
+.dim { color: var(--dim); }
+.small { font-size: 12px; }
+.mono { font-family: var(--mono); }
+.nowrap { white-space: nowrap; }
+
+/* ---------------- карточки ---------------- */
+.card {
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+.card.flat { box-shadow: none; }
+.card h3 { margin: 0 0 14px; font-size: 15px; letter-spacing: .01em; }
+.card h4 { margin: 0 0 8px; font-size: 13.5px; }
+.card .card-sub { margin: -8px 0 16px; color: var(--dim); font-size: 12px; }
+.card + .card { margin-top: 16px; }
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.card-head h3 { margin: 0; }
+
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.stack > * + * { margin-top: 16px; }
+
+/* ---------------- герой ---------------- */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(340px, .85fr);
+  gap: 18px;
+  margin-bottom: 18px;
+}
+.hero-main {
+  position: relative;
+  overflow: hidden;
+  min-height: 286px;
+  padding: 32px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background:
+    radial-gradient(120% 130% at 8% 0%, var(--accent-soft), transparent 55%),
+    radial-gradient(90% 120% at 100% 100%, rgba(76, 201, 240, .08), transparent 55%),
+    linear-gradient(145deg, var(--panel-2), var(--panel));
+  box-shadow: var(--shadow);
+}
+.hero-main::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--line-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+  background-size: 38px 38px;
+  opacity: .38;
+  mask-image: radial-gradient(75% 90% at 75% 20%, #000, transparent 75%);
+  pointer-events: none;
+}
+.hero-main > * { position: relative; z-index: 1; }
+.hero-main h2 {
+  max-width: 680px;
+  margin: 4px 0 12px;
+  font-size: clamp(30px, 3.3vw, 46px);
+  line-height: 1.04;
+  letter-spacing: -.035em;
+}
+.hero-main h2 em { color: var(--accent); font-style: normal; }
+.hero-main p { max-width: 620px; margin: 0 0 22px; color: var(--muted); font-size: 14px; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.hero-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 24px; }
+
+.hero-widget { display: flex; flex-direction: column; justify-content: center; }
+.hero-widget h3 { display: flex; align-items: center; gap: 8px; }
+.hero-widget h3 .icon { width: 17px; height: 17px; color: var(--accent); }
+.quick-fields { display: grid; gap: 11px; }
+.quick-result {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel-3);
+}
+.quick-result .qf-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.quick-result .qf-row + .qf-row { margin-top: 7px; }
+.quick-result .qf-row span { color: var(--muted); font-size: 12px; }
+.quick-result .qf-row b { font: 700 16px/1.2 var(--mono); color: var(--accent-2); }
+.quick-result .qf-note { margin-top: 8px; color: var(--dim); font-size: 11px; }
+.quick-result .qf-main { font: 800 32px/1 var(--mono); color: var(--accent); letter-spacing: -.03em; }
+
+/* ---------------- статистика ---------------- */
+.stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel-2);
+}
+.stat-icon {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.stat-icon .icon { width: 20px; height: 20px; }
+.stat b { display: block; font: 700 22px/1.1 var(--mono); }
+.stat span { color: var(--dim); font-size: 11px; }
+
+/* ---------------- секции-ссылки ---------------- */
+.section-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.section-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 148px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel-2);
+  color: var(--text);
+  text-decoration: none;
+  transition: transform .18s, border-color .18s, background .18s;
+}
+.section-card:hover { transform: translateY(-3px); border-color: var(--accent); background: var(--panel-3); }
+.section-card .sc-icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.section-card .sc-icon .icon { width: 19px; height: 19px; }
+.section-card b { margin-bottom: 4px; font-size: 14px; }
+.section-card span { color: var(--dim); font-size: 11.5px; line-height: 1.4; }
+.section-card .sc-arrow { position: absolute; top: 16px; right: 16px; color: var(--dim); font-size: 16px; }
+.section-card:hover .sc-arrow { color: var(--accent); }
+
+/* ---------------- кнопки ---------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 9px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-3);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .16s, border-color .16s, transform .1s, color .16s;
+}
+.btn:hover { background: var(--panel-4); border-color: var(--line); }
+.btn:active { transform: translateY(1px); }
+.btn .icon { width: 16px; height: 16px; }
+.btn-primary {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--accent-2), var(--accent) 55%, #ef7d00);
+  color: #1b1200;
+  box-shadow: 0 8px 20px rgba(246, 167, 35, .22);
+}
+.btn-primary:hover { background: linear-gradient(135deg, #ffe08a, var(--accent) 55%, #f58a00); }
+.btn-ghost { background: transparent; }
+.btn-danger { border-color: rgba(255, 112, 112, .3); color: var(--red); background: var(--red-soft); }
+.btn-sm { min-height: 32px; padding: 6px 11px; font-size: 12px; }
+.btn-block { width: 100%; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* ---------------- формы ---------------- */
+.field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.field > label,
+.field-label {
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+.field-hint { color: var(--dim); font-size: 10.5px; line-height: 1.35; }
+.input, .select, textarea {
+  width: 100%;
+  min-height: 40px;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--bg-soft);
+  color: var(--text);
+  font-size: 13.5px;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s, background .15s;
+}
+textarea { min-height: 84px; resize: vertical; line-height: 1.45; }
+.input:hover, .select:hover, textarea:hover { border-color: var(--panel-4); }
+.input:focus, .select:focus, textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  background: var(--panel-2);
+}
+.input.mono { font-family: var(--mono); }
+.select { cursor: pointer; }
+.field-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+.field-row.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.form-grid .span-2 { grid-column: span 2; }
+.form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin-top: 16px; }
+.checkline { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12.5px; }
+.checkline input { accent-color: var(--accent); }
+
+/* ---------------- расчётные экраны ---------------- */
+.calc-layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 410px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+.calc-layout.wide { grid-template-columns: minmax(340px, 470px) minmax(0, 1fr); }
+
+.result-panel { display: flex; flex-direction: column; gap: 14px; }
+.result-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(100% 100% at 100% 0%, var(--accent-soft), transparent 60%),
+    linear-gradient(145deg, var(--panel-3), var(--panel-2));
+}
+.result-hero .rh-label { color: var(--muted); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; }
+.result-hero .rh-value {
+  margin: 4px 0 2px;
+  color: var(--accent-2);
+  font: 800 clamp(38px, 5vw, 56px)/1 var(--mono);
+  letter-spacing: -.05em;
+}
+.result-hero .rh-unit { color: var(--muted); font-size: 14px; font-weight: 600; }
+.result-hero .rh-note { margin-top: 10px; color: var(--dim); font-size: 11.5px; }
+.result-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.result-item {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--panel-2);
+}
+.result-item span { display: block; color: var(--dim); font-size: 10px; letter-spacing: .05em; text-transform: uppercase; }
+.result-item b { display: block; margin-top: 3px; font: 700 16px/1.2 var(--mono); color: var(--text); }
+.result-item b small { color: var(--muted); font-size: 10.5px; font-weight: 500; }
+
+.warn-box {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid rgba(246, 167, 35, .28);
+  border-radius: 11px;
+  background: var(--accent-soft);
+  color: var(--accent-2);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.warn-box .icon { width: 17px; height: 17px; flex: 0 0 17px; margin-top: 1px; }
+.ok-box {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid rgba(54, 211, 153, .26);
+  border-radius: 11px;
+  background: var(--green-soft);
+  color: var(--green);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.mini-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.mini-table th, .mini-table td { padding: 7px 9px; border-bottom: 1px solid var(--line-soft); text-align: left; }
+.mini-table th { color: var(--dim); font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.mini-table td { color: var(--text); }
+.mini-table td.num { font-family: var(--mono); text-align: right; }
+.mini-table tr:last-child td { border-bottom: none; }
+.mini-table .accent { color: var(--accent-2); font-weight: 700; }
+
+/* ---------------- таблицы ---------------- */
+.table-wrap {
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  max-height: 620px;
+}
+.table-wrap.tall { max-height: 760px; }
+.table-wrap.short { max-height: 420px; }
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  min-width: 640px;
+}
+table.data th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 9px 11px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel-3);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+table.data td {
+  padding: 8px 11px;
+  border-bottom: 1px solid var(--line-soft);
+  white-space: nowrap;
+  vertical-align: top;
+}
+table.data td.wrap { white-space: normal; min-width: 180px; }
+table.data tr:last-child td { border-bottom: none; }
+table.data tbody tr:hover { background: var(--panel-3); }
+table.data .num { font-family: var(--mono); text-align: right; }
+table.data .strong { color: var(--accent-2); font-weight: 700; }
+table.data .mono { font-family: var(--mono); }
+table.data .center { text-align: center; }
+.table-caption { margin: 0 0 10px; color: var(--dim); font-size: 11.5px; }
+
+/* ---------------- бейджи, чипы ---------------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-3);
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge.green { background: var(--green-soft); border-color: rgba(54, 211, 153, .22); color: var(--green); }
+.badge.amber { background: var(--accent-soft); border-color: rgba(246, 167, 35, .24); color: var(--accent-2); }
+.badge.red { background: var(--red-soft); border-color: rgba(255, 112, 112, .24); color: var(--red); }
+.badge.violet { background: var(--violet-soft); border-color: rgba(167, 139, 250, .24); color: var(--violet); }
+.badge.cyan { background: var(--cyan-soft); border-color: rgba(76, 201, 240, .24); color: var(--cyan); }
+.badge.gray { color: var(--dim); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.chip {
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+}
+.chip:hover { border-color: var(--panel-4); color: var(--text); }
+.chip.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-2); }
+.chip .count { margin-left: 5px; color: var(--dim); font-family: var(--mono); font-size: 10px; }
+
+/* ---------------- фильтр и материалы ---------------- */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.toolbar .search {
+  position: relative;
+  flex: 1;
+  max-width: 420px;
+  min-width: 220px;
+}
+.toolbar .search .input { padding-left: 34px; }
+.toolbar .search .icon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  color: var(--dim);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.mat-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.mat-card {
+  display: flex;
+  flex-direction: column;
+  padding: 17px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  transition: border-color .16s, transform .16s;
+}
+.mat-card:hover { border-color: var(--panel-4); transform: translateY(-2px); }
+.mat-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 7px; }
+.mat-head h3 { margin: 0; font-size: 18px; letter-spacing: -.01em; }
+.mat-desc { margin: 0 0 12px; color: var(--muted); font-size: 11.5px; line-height: 1.45; min-height: 33px; }
+.mat-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 12px; }
+.mat-stat { padding: 7px 9px; border: 1px solid var(--line-soft); border-radius: 8px; background: var(--panel-3); }
+.mat-stat span { display: block; color: var(--dim); font-size: 9px; letter-spacing: .06em; text-transform: uppercase; }
+.mat-stat b { display: block; margin-top: 2px; font: 600 11.5px/1.3 var(--mono); color: var(--text); }
+.mat-note {
+  margin: 0 0 10px;
+  padding: 9px 10px;
+  border-left: 2px solid var(--accent);
+  border-radius: 0 7px 7px 0;
+  background: var(--accent-soft);
+  color: var(--accent-2);
+  font-size: 11px;
+  line-height: 1.45;
+}
+.mat-use { margin: auto 0 12px; color: var(--dim); font-size: 10.5px; line-height: 1.4; }
+.mat-card .btn { width: 100%; }
+
+.empty {
+  padding: 34px 20px;
+  border: 1px dashed var(--line);
+  border-radius: 13px;
+  color: var(--dim);
+  text-align: center;
+  font-size: 12.5px;
+}
+.empty b { display: block; margin-bottom: 4px; color: var(--muted); font-size: 14px; }
+
+/* ---------------- допуски ---------------- */
+.tol-out { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.tol-card {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel-2);
+}
+.tol-card h4 { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 8px; font-size: 12px; color: var(--muted); }
+.tol-card .big { font: 700 20px/1.2 var(--mono); color: var(--text); }
+.tol-card .limits { margin-top: 6px; color: var(--dim); font: 11px/1.5 var(--mono); }
+.tol-card .limits b { color: var(--text); font-weight: 600; }
+.fit-banner {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--panel-3), var(--panel-2));
+}
+.fit-banner .fb-type { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.fit-banner .fb-type b { font-size: 18px; }
+.fit-banner .fb-values { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--muted); font: 12px/1.5 var(--mono); }
+.fit-banner .fb-values b { color: var(--accent-2); }
+.custom-fields { display: none; }
+.custom-fields.show { display: grid; }
+
+/* ---------------- резьба ---------------- */
+.thread-result { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.thread-big {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel-2);
+}
+.thread-big span { display: block; color: var(--dim); font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; }
+.thread-big b { display: block; margin-top: 2px; color: var(--accent-2); font: 800 26px/1.1 var(--mono); }
+.thread-big small { color: var(--dim); font-size: 10.5px; }
+.thread-info { padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2); }
+.thread-info + .thread-info { margin-top: 10px; }
+.thread-info h4 { display: flex; align-items: center; gap: 7px; margin: 0 0 6px; color: var(--accent-2); font-size: 12px; }
+.thread-info p { margin: 0; color: var(--muted); font-size: 11.5px; line-height: 1.5; }
+.thread-info .icon { width: 15px; height: 15px; }
+
+/* ---------------- ЧПУ ---------------- */
+.code-block { position: relative; margin: 0; border: 1px solid var(--line); border-radius: 12px; background: var(--code-bg); overflow: hidden; }
+.code-block pre {
+  max-height: 420px;
+  margin: 0;
+  padding: 16px 18px;
+  overflow: auto;
+  color: var(--code-text);
+  font: 12.5px/1.65 var(--mono);
+  tab-size: 2;
+}
+.code-block .cmt { color: #6e8ba5; }
+.code-block .gcode { color: #ffcf6b; }
+.code-block .mcode { color: #7bdff2; }
+.code-block .num { color: #b6f09c; }
+.code-copy {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  padding: 4px 9px;
+  border: 1px solid #2a3a4b;
+  border-radius: 7px;
+  background: rgba(16, 24, 32, .9);
+  color: #9fb5c9;
+  font-size: 10.5px;
+  cursor: pointer;
+  opacity: .75;
+  transition: opacity .15s, color .15s, border-color .15s;
+}
+.code-copy:hover { opacity: 1; color: #ffcf6b; border-color: #4a5f75; }
+
+.program { margin-bottom: 16px; }
+.program-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 9px; }
+.program-head h3 { margin: 0 0 2px; font-size: 14px; }
+.program-head p { margin: 0; color: var(--dim); font-size: 11.5px; }
+.cycle-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.cycle-card { padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2); }
+.cycle-card h4 { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; }
+.cycle-card h4 code { padding: 2px 7px; border-radius: 6px; background: var(--accent-soft); color: var(--accent-2); font: 700 11px/1.4 var(--mono); }
+.cycle-card p { margin: 0; color: var(--muted); font-size: 11.5px; line-height: 1.5; }
+.cycle-card .syntax { display: block; margin-top: 8px; padding: 7px 9px; border-radius: 7px; background: var(--bg-soft); color: var(--cyan); font: 10.5px/1.5 var(--mono); white-space: pre-wrap; }
+
+/* ---------------- формулы ---------------- */
+.formula-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.formula-card { padding: 17px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel-2); }
+.formula-card h3 { margin: 0 0 4px; font-size: 14px; }
+.formula-card .formula {
+  display: block;
+  margin: 9px 0 12px;
+  padding: 9px 11px;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  background: var(--bg-soft);
+  color: var(--cyan);
+  font: 12px/1.5 var(--mono);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.formula-card .calc-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.formula-card .calc-row.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.formula-card .calc-out {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line-soft);
+}
+.formula-card .calc-out span { color: var(--dim); font-size: 11px; }
+.formula-card .calc-out b { color: var(--accent-2); font: 700 18px/1.2 var(--mono); }
+.formula-card .calc-out b small { color: var(--muted); font-size: 10px; font-weight: 500; }
+
+/* ---------------- дневник ---------------- */
+.diary-layout { display: grid; grid-template-columns: minmax(330px, 400px) minmax(0, 1fr); gap: 18px; align-items: start; }
+.diary-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; }
+.diary-stat { padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel-2); text-align: center; }
+.diary-stat b { display: block; font: 700 18px/1.1 var(--mono); color: var(--accent-2); }
+.diary-stat span { color: var(--dim); font-size: 9px; letter-spacing: .05em; text-transform: uppercase; }
+
+.entry-list { display: flex; flex-direction: column; gap: 10px; }
+.entry {
+  position: relative;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel-2);
+}
+.entry:hover { border-color: var(--panel-4); }
+.entry-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 5px; }
+.entry-title { display: flex; align-items: baseline; flex-wrap: wrap; gap: 7px; min-width: 0; }
+.entry-title b { font-size: 14px; overflow-wrap: anywhere; }
+.entry-side { display: flex; align-items: center; flex: 0 0 auto; gap: 8px; }
+.entry-date { color: var(--dim); font: 10.5px/1.4 var(--mono); white-space: nowrap; }
+.entry-meta { display: flex; flex-wrap: wrap; gap: 6px; margin: 7px 0; }
+.entry-note { margin: 6px 0 0; color: var(--muted); font-size: 11.5px; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+.entry-del {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--dim);
+  font-size: 15px;
+  cursor: pointer;
+}
+.entry-del:hover { border-color: rgba(255, 112, 112, .3); background: var(--red-soft); color: var(--red); }
+.entry-values { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.diary-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.diary-toolbar .search { flex: 1; min-width: 180px; position: relative; }
+.diary-toolbar .search .icon { position: absolute; left: 11px; top: 50%; width: 15px; height: 15px; transform: translateY(-50%); color: var(--dim); pointer-events: none; }
+.diary-toolbar .search .input { padding-left: 33px; }
+
+/* ---------------- прочее ---------------- */
+.list-check { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.list-check li { display: flex; gap: 9px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+.list-check li::before { content: "✓"; color: var(--green); font-weight: 700; flex: 0 0 auto; }
+
+.split-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 20px; margin: 0; padding: 0; list-style: none; }
+.split-list li { display: flex; gap: 8px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+.split-list li::before { content: "→"; color: var(--accent); flex: 0 0 auto; }
+
+.tip-box {
+  display: flex;
+  gap: 12px;
+  padding: 17px;
+  border: 1px solid rgba(246, 167, 35, .22);
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--accent-soft), transparent 75%), var(--panel-2);
+}
+.tip-box .tip-icon {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #1b1200;
+}
+.tip-box .tip-icon .icon { width: 19px; height: 19px; }
+.tip-box b { display: block; margin-bottom: 3px; color: var(--accent-2); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.tip-box p { margin: 0; color: var(--text); font-size: 12.5px; line-height: 1.5; }
+
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 12px; }
+.kv dt { color: var(--dim); }
+.kv dd { margin: 0; color: var(--text); }
+
+.big-note { color: var(--dim); font-size: 11px; line-height: 1.5; }
+.divider { height: 1px; margin: 18px 0; background: var(--line-soft); }
+
+.link-arrow { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; text-decoration: none; }
+.link-arrow:hover { text-decoration: underline; }
+
+.code-inline { padding: 1px 5px; border-radius: 4px; background: var(--panel-3); color: var(--accent-2); font: 11.5px var(--mono); }
+
+/* ---------------- тост ---------------- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  z-index: 100;
+  max-width: min(90vw, 460px);
+  padding: 11px 18px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-3);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  font-size: 12.5px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 16px);
+  transition: opacity .2s, transform .2s;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast.ok { border-color: rgba(54, 211, 153, .35); }
+.toast.err { border-color: rgba(255, 112, 112, .4); }
+
+/* ---------------- адаптив ---------------- */
+@media (max-width: 1280px) {
+  .mat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .section-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 1120px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-main { min-height: 0; }
+  .calc-layout, .calc-layout.wide { grid-template-columns: 1fr; }
+  .diary-layout { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .section-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .formula-grid { grid-template-columns: 1fr; }
+  .result-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 980px) {
+  .sidebar {
+    transform: translateX(-102%);
+    transition: transform .24s ease;
+    box-shadow: var(--shadow);
+  }
+  body.sidebar-open .sidebar { transform: translateX(0); }
+  .main { margin-left: 0; }
+  .menu-btn { display: grid; }
+  .topbar { padding: 10px 18px; }
+  .view { padding: 22px 18px 56px; }
+  .footer { padding: 16px 18px 24px; }
+  .today { display: none; }
+}
+
+@media (max-width: 720px) {
+  .page-head { align-items: flex-start; flex-direction: column; gap: 10px; }
+  .page-head h2 { font-size: 23px; }
+  .grid-2, .grid-3, .cycle-grid, .tol-out, .thread-result { grid-template-columns: 1fr; }
+  .mat-grid { grid-template-columns: 1fr; }
+  .section-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .result-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .diary-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-grid .span-2 { grid-column: auto; }
+  .field-row, .field-row.three { grid-template-columns: 1fr; }
+  .split-list { grid-template-columns: 1fr; }
+  .formula-card .calc-row, .formula-card .calc-row.three { grid-template-columns: 1fr; }
+  .hero-main { padding: 24px 20px; border-radius: 18px; }
+  .hero-main h2 { font-size: 30px; }
+  .topbar h1 { font-size: 18px; }
+  .topbar .sub { display: none; }
+  .view { padding: 18px 14px 48px; }
+  .card { padding: 16px; border-radius: 14px; }
+  .footer { flex-direction: column; gap: 4px; font-size: 10.5px; }
+}
+
+@media (max-width: 460px) {
+  .section-grid { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: 1fr; }
+  .result-grid { grid-template-columns: 1fr; }
+  .hero-actions .btn { width: 100%; }
+  .diary-toolbar .btn { flex: 1; }
+}
+
+/* ---------------- печать ---------------- */
+@media print {
+  :root {
+    color-scheme: light;
+    --bg: #fff;
+    --panel: #fff;
+    --panel-2: #fff;
+    --panel-3: #f4f6f8;
+    --panel-4: #e7ebef;
+    --line: #c9d1d9;
+    --line-soft: #e2e7ec;
+    --text: #111;
+    --muted: #333;
+    --dim: #555;
+    --shadow: none;
+    --shadow-sm: none;
+  }
+  body { background: #fff; font-size: 12px; }
+  .sidebar, .topbar, .footer, .overlay, .toast, .no-print, .btn { display: none !important; }
+  .main { margin-left: 0; }
+  .view { max-width: none; padding: 0; }
+  .card, .entry, .mat-card, .formula-card, .stat { break-inside: avoid; border-color: #bbb; box-shadow: none; }
+  .hero-main { background: #fff; border-color: #bbb; box-shadow: none; }
+  .hero-main::before { display: none; }
+  .entry-del { display: none; }
+  a { color: #111; }
+  .table-wrap { max-height: none; overflow: visible; }
+  table.data th { position: static; }
+}
+
+</style>
 </head>
 <body>
   <div class="app">
@@ -46,7 +1132,15 @@
         </div>
       </header>
 
-      <main class="view" id="view" tabindex="-1"></main>
+      <main class="view" id="view" tabindex="-1">
+        <div class="empty">
+          <b>Загрузка справочника…</b>
+          Если это сообщение не исчезло, откройте файл в браузере (Chrome, Edge, Яндекс Браузер) и убедитесь,
+          что рядом с <span class="mono">index.html</span> лежат файлы <span class="mono">data.js</span> и
+          <span class="mono">app-*.js</span>. Можно также открыть готовый однофайловый вариант
+          <span class="mono">ТокарьPRO.html</span>.
+        </div>
+      </main>
 
       <footer class="footer no-print">
         <span>Дневник токаря · режимы, допуски, резьба, ЧПУ</span>
@@ -63,14 +1157,2960 @@
     </div>
   </noscript>
 
-  <script src="data.js"></script>
-  <script src="app-util.js"></script>
-  <script src="app-home.js"></script>
-  <script src="app-modes.js"></script>
-  <script src="app-tol.js"></script>
-  <script src="app-threads.js"></script>
-  <script src="app-formulas.js"></script>
-  <script src="app-ref.js"></script>
-  <script src="app-diary.js"></script>
+  <script>
+/* ============================================================
+   ДНЕВНИК ТОКАРЯ — справочные данные
+   Все режимы ориентировочные. Проверяйте по паспорту станка,
+   марке инструмента и ГОСТ/ISO.
+   ============================================================ */
+
+const MACHINE_SPEEDS = [25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150];
+
+const MACHINABILITY = {
+  1: { name: 'Хорошая', cls: 'green' },
+  2: { name: 'Средняя', cls: 'amber' },
+  3: { name: 'Трудная', cls: 'red' },
+  4: { name: 'Очень трудная', cls: 'violet' }
+};
+
+const OPERATIONS = {
+  rough:  { name: 'Черновая',      vcFactor: 0.80, ap: 2.5, feedPos: 0.80, icon: '▰' },
+  semi:   { name: 'Получистовая',  vcFactor: 1.00, ap: 1.2, feedPos: 0.45, icon: '▰▰' },
+  finish: { name: 'Чистовая',      vcFactor: 1.15, ap: 0.4, feedPos: 0.00, icon: '▰▰▰' }
+};
+
+const TOOL_MATERIALS = {
+  carbide: { name: 'Твёрдый сплав (пластина)', vcSource: 'carb',  factor: 1.00, note: 'Универсальный выбор для стали, чугуна и цветных металлов.' },
+  hss:     { name: 'Быстрорез HSS',            vcSource: 'hss',   factor: 1.00, note: 'Низкие скорости, но прочная кромка: свёрла, метчики, фасонные резцы.' },
+  ceramic: { name: 'Керамика',                 vcSource: 'carb',  factor: 1.80, note: 'Только чугун и закалённые стали, без ударов и вибраций.' }
+};
+
+const MATERIALS = [
+  {
+    id: 'st3', name: 'Ст3', group: 'Углеродистые', hb: '110–150',
+    vcHss: [25, 40], vcCarb: [150, 250], feed: [0.20, 0.50], ap: [1, 4], kc: 1750, mach: 1,
+    desc: 'Сталь обыкновенного качества, σв 370–490 МПа. Пластичная, хорошо сваривается.',
+    note: 'Склонна к наросту на малых скоростях. Работайте острой кромкой и с СОЖ.',
+    use: 'Сварные конструкции, оси, втулки, кронштейны, неответственные детали.'
+  },
+  {
+    id: '20', name: 'Сталь 20', group: 'Углеродистые', hb: '120–170',
+    vcHss: [25, 40], vcCarb: [160, 260], feed: [0.20, 0.45], ap: [1, 4], kc: 1800, mach: 1,
+    desc: 'Низкоуглеродистая качественная, цементуемая. Вязкая, хорошо штампуется.',
+    note: 'Вязкая стружка, возможен нарост. На чистовой — малая подача и острая вершина.',
+    use: 'Втулки, валики, шестерни и детали после цементации.'
+  },
+  {
+    id: '45', name: 'Сталь 45', group: 'Углеродистые', hb: '170–250',
+    vcHss: [20, 35], vcCarb: [140, 220], feed: [0.15, 0.40], ap: [1, 3.5], kc: 1900, mach: 1,
+    desc: 'Среднеуглеродистая, σв 600–750 МПа. Нормализация или улучшение.',
+    note: 'При HB выше 220 снижайте Vc на 20–30%. Улучшенная сталь — 110–170 м/мин.',
+    use: 'Валы, оси, шпиндели, зубчатые колёса, крепёж.'
+  },
+  {
+    id: '40x', name: '40Х', group: 'Легированные', hb: '180–280',
+    vcHss: [18, 30], vcCarb: [120, 200], feed: [0.15, 0.40], ap: [1, 3], kc: 2000, mach: 2,
+    desc: 'Хромистая улучшаемая сталь, σв 700–900 МПа.',
+    note: 'В улучшенном состоянии (HB 230–280) — Vc 90–150 м/мин твёрдым сплавом.',
+    use: 'Валы, шпиндели, болты, полуоси, ответственные крепёжные детали.'
+  },
+  {
+    id: '40xl', name: '40ХЛ', group: 'Легированные', hb: '160–220',
+    vcHss: [15, 25], vcCarb: [100, 160], feed: [0.15, 0.35], ap: [1, 3], kc: 2050, mach: 2,
+    desc: 'Литейная хромистая сталь. Структура и твёрдость по сечению неравномерны.',
+    note: 'Литая корка, раковины и удары: первый проход меньше, следите за кромкой. Vc 100–160 м/мин.',
+    use: 'Корпуса, рычаги, кронштейны, детали, получаемые литьём.'
+  },
+  {
+    id: '30hgsa', name: '30ХГСА', group: 'Легированные', hb: '200–250',
+    vcHss: [15, 25], vcCarb: [100, 160], feed: [0.12, 0.30], ap: [1, 2.5], kc: 2150, mach: 2,
+    desc: 'Хромансиль, σв 900–1100 МПа. Прочная и вязкая.',
+    note: 'Даёт сливную стружку. Нужны жёсткая система, мощная СОЖ и надёжный отвод стружки.',
+    use: 'Ответственные валы, штоки, силовые элементы, авиационные детали.'
+  },
+  {
+    id: '38h2mua', name: '38Х2МЮА', group: 'Легированные', hb: '200–250',
+    vcHss: [15, 25], vcCarb: [100, 150], feed: [0.12, 0.30], ap: [1, 2.5], kc: 2150, mach: 2,
+    desc: 'Азотируемая сталь. После азотирования имеет очень твёрдый поверхностный слой.',
+    note: 'Обрабатывайте до азотирования. После азотирования — только шлифование.',
+    use: 'Гильзы, втулки, шпиндели, детали с повышенной поверхностной твёрдостью.'
+  },
+  {
+    id: '20h13', name: '20Х13', group: 'Нержавеющие', hb: '150–200',
+    vcHss: [15, 25], vcCarb: [90, 150], feed: [0.10, 0.30], ap: [1, 2.5], kc: 2200, mach: 2,
+    desc: 'Нержавеющая хромистая сталь (12–14% Cr), σв 600–800 МПа.',
+    note: 'Склонна к наклёпу. Не задерживайте резец в резе, работайте с постоянной подачей.',
+    use: 'Лопатки, арматура, крепёж, детали с коррозионной стойкостью.'
+  },
+  {
+    id: '40h13', name: '40Х13', group: 'Нержавеющие', hb: '200–250',
+    vcHss: [12, 20], vcCarb: [80, 130], feed: [0.10, 0.25], ap: [0.8, 2], kc: 2300, mach: 3,
+    desc: 'Нержавеющая хромистая сталь, σв 750–950 МПа. Твёрже и прочнее 20Х13.',
+    note: 'При закалке выше HB 250 — только шлифование или твёрдый сплав с малой подачей.',
+    use: 'Ножи, клапаны, пружины, износостойкие детали.'
+  },
+  {
+    id: '12h18n10t', name: '12Х18Н10Т', group: 'Нержавеющие', hb: '140–180',
+    vcHss: [8, 15], vcCarb: [60, 110], feed: [0.10, 0.25], ap: [0.8, 2], kc: 2300, mach: 3,
+    desc: 'Аустенитная нержавеющая сталь (18% Cr, 10% Ni, Ti). Вязкая, склонна к наклёпу.',
+    note: 'Обильная СОЖ, острая кромка, без остановок в резе. Vc 60–110 м/мин, большая подача лучше малой.',
+    use: 'Пищевое и химическое оборудование, ёмкости, теплообменники.'
+  },
+  {
+    id: 'sh15', name: 'ШХ15', group: 'Инструментальные', hb: '180–220',
+    vcHss: [12, 20], vcCarb: [80, 120], feed: [0.10, 0.25], ap: [0.8, 2], kc: 2050, mach: 3,
+    desc: 'Подшипниковая хромистая сталь в отожжённом состоянии.',
+    note: 'После закалки (HRC 60–65) — только шлифование. Точение — до термообработки.',
+    use: 'Кольца и шарики подшипников, ролики, плунжеры, износостойкие детали.'
+  },
+  {
+    id: 'u8', name: 'У8 / У10', group: 'Инструментальные', hb: '180–210',
+    vcHss: [15, 25], vcCarb: [90, 140], feed: [0.10, 0.30], ap: [1, 2.5], kc: 1950, mach: 2,
+    desc: 'Инструментальная углеродистая сталь в отожжённом состоянии.',
+    note: 'Закалённая (HRC 58–62) обрабатывается только шлифованием.',
+    use: 'Зубила, пилы, метчики, пуансоны — после термообработки.'
+  },
+  {
+    id: '65g', name: '65Г', group: 'Инструментальные', hb: '200–240',
+    vcHss: [15, 25], vcCarb: [100, 150], feed: [0.12, 0.30], ap: [1, 2.5], kc: 2050, mach: 2,
+    desc: 'Рессорно-пружинная сталь. Упругая и вязкая.',
+    note: 'Не перегревайте: при синем цвете стружки деталь теряет упругость.',
+    use: 'Пружины, рессоры, стопорные кольца, шайбы.'
+  },
+  {
+    id: 'r6m5', name: 'Р6М5', group: 'Инструментальные', hb: '220–250',
+    vcHss: [8, 15], vcCarb: [30, 50], feed: [0.08, 0.20], ap: [0.5, 1.5], kc: 2400, mach: 3,
+    desc: 'Быстрорежущая сталь в отожжённом состоянии.',
+    note: 'Отожжённая — 30–50 м/мин твёрдосплавом. Закалённая — только шлифование.',
+    use: 'Свёрла, метчики, фрезы, резцы, развёртки.'
+  },
+  {
+    id: 'sch20', name: 'СЧ20', group: 'Чугуны', hb: '170–210',
+    vcHss: [20, 30], vcCarb: [80, 150], feed: [0.20, 0.50], ap: [1, 4], kc: 1100, mach: 1,
+    desc: 'Серый чугун с пластинчатым графитом. Хорошо обрабатывается, стружка сыпучая.',
+    note: 'Стружка — пыль: очки и отсос. СОЖ не обязательна, можно работать «на сухую».',
+    use: 'Корпуса, станины, шкивы, гильзы, тормозные диски.'
+  },
+  {
+    id: 'vch50', name: 'ВЧ50', group: 'Чугуны', hb: '170–230',
+    vcHss: [15, 25], vcCarb: [70, 120], feed: [0.15, 0.40], ap: [1, 3], kc: 1250, mach: 2,
+    desc: 'Высокопрочный чугун с шаровидным графитом. Прочнее серого чугуна.',
+    note: 'Требует меньших Vc и большей жёсткости, чем СЧ20. Кромка должна быть острой.',
+    use: 'Коленвалы, зубчатые колёса, корпуса под давлением.'
+  },
+  {
+    id: 'ad31', name: 'АД31', group: 'Цветные', hb: '60–80',
+    vcHss: [200, 400], vcCarb: [300, 800], feed: [0.10, 0.40], ap: [1, 5], kc: 700, mach: 1,
+    desc: 'Алюминиевый сплав (аналог 6063). Мягкий, отлично обрабатывается.',
+    note: 'СОЖ или керосин, острая полированная геометрия, большие канавки для стружки. Не допускайте налипания.',
+    use: 'Профили, корпуса, радиаторы, декоративные детали.'
+  },
+  {
+    id: 'd16t', name: 'Д16Т', group: 'Цветные', hb: '105–120',
+    vcHss: [150, 300], vcCarb: [250, 600], feed: [0.10, 0.35], ap: [1, 4], kc: 800, mach: 1,
+    desc: 'Дюралюминий, термоупрочнённый. Прочный и лёгкий.',
+    note: 'Не перегревайте — не выше 120–150 °C, иначе снижаются свойства. Острая кромка, СОЖ.',
+    use: 'Силовые элементы, кронштейны, панели, детали авиатехники.'
+  },
+  {
+    id: 'ls59', name: 'ЛС59-1', group: 'Цветные', hb: '80–120',
+    vcHss: [150, 250], vcCarb: [250, 450], feed: [0.10, 0.40], ap: [1, 3], kc: 600, mach: 1,
+    desc: 'Латунь свинцовистая. Обрабатывается очень хорошо, стружка мелкая.',
+    note: 'Мелкая стружка — применяйте СОЖ и защиту глаз. Не вдыхайте пыль.',
+    use: 'Втулки, арматура, крепёж, декоративные детали.'
+  },
+  {
+    id: 'bro10', name: 'БрО10Ф1', group: 'Цветные', hb: '80–100',
+    vcHss: [100, 200], vcCarb: [200, 350], feed: [0.10, 0.30], ap: [1, 3], kc: 800, mach: 2,
+    desc: 'Бронза оловянная, антифрикционная. Хрупкая стружка.',
+    note: 'Не перегревайте. Острые кромки, умеренные подачи, чтобы избежать сколов.',
+    use: 'Вкладыши, втулки, червячные колёса, антифрикционные детали.'
+  },
+  {
+    id: 'vt6', name: 'ВТ6', group: 'Титановые', hb: '250–300',
+    vcHss: [10, 20], vcCarb: [40, 80], feed: [0.08, 0.20], ap: [0.5, 1.5], kc: 2500, mach: 4,
+    desc: 'Титановый сплав (Ti-6Al-4V), σв 900–1000 МПа.',
+    note: 'Низкая теплопроводность: тепло уходит в кромку. Обильная СОЖ, малые Vc, без остановок в резе, острая кромка.',
+    use: 'Авиация, медицина, химическое оборудование.'
+  },
+  {
+    id: 'hn77', name: 'ХН77ТЮР', group: 'Жаропрочные', hb: '250–320',
+    vcHss: [5, 10], vcCarb: [20, 40], feed: [0.05, 0.15], ap: [0.5, 1.5], kc: 2800, mach: 4,
+    desc: 'Никелевый жаропрочный сплав. Высокая прочность при нагреве.',
+    note: 'Очень малые скорости, жёсткая система, обильная СОЖ. Лучше твёрдый сплав или керамика.',
+    use: 'Лопатки турбин, детали газотурбинных двигателей.'
+  }
+];
+
+/* ---------------- ISO 286: квалитеты ---------------- */
+const IT_RANGES = [
+  { min: 0, max: 3, label: 'до 3' },
+  { min: 3, max: 6, label: 'св. 3 до 6' },
+  { min: 6, max: 10, label: 'св. 6 до 10' },
+  { min: 10, max: 18, label: 'св. 10 до 18' },
+  { min: 18, max: 30, label: 'св. 18 до 30' },
+  { min: 30, max: 50, label: 'св. 30 до 50' },
+  { min: 50, max: 80, label: 'св. 50 до 80' },
+  { min: 80, max: 120, label: 'св. 80 до 120' },
+  { min: 120, max: 180, label: 'св. 120 до 180' },
+  { min: 180, max: 250, label: 'св. 180 до 250' },
+  { min: 250, max: 315, label: 'св. 250 до 315' },
+  { min: 315, max: 400, label: 'св. 315 до 400' },
+  { min: 400, max: 500, label: 'св. 400 до 500' }
+];
+
+const IT_VALUES = {
+  5:  [4, 5, 6, 8, 9, 11, 13, 15, 18, 20, 23, 25, 27],
+  6:  [6, 8, 9, 11, 13, 16, 19, 22, 25, 29, 32, 36, 40],
+  7:  [10, 12, 15, 18, 21, 25, 30, 35, 40, 46, 52, 57, 63],
+  8:  [14, 18, 22, 27, 33, 39, 46, 54, 63, 72, 81, 89, 97],
+  9:  [25, 30, 36, 43, 52, 62, 74, 87, 100, 115, 130, 140, 155],
+  10: [40, 48, 58, 70, 84, 100, 120, 140, 160, 185, 210, 230, 250],
+  11: [60, 75, 90, 110, 130, 160, 190, 220, 250, 290, 320, 360, 400],
+  12: [100, 120, 150, 180, 210, 250, 300, 350, 400, 460, 520, 570, 630],
+  13: [140, 180, 220, 270, 330, 390, 460, 540, 630, 720, 810, 890, 970],
+  14: [250, 300, 360, 430, 520, 620, 740, 870, 1000, 1150, 1300, 1400, 1550]
+};
+
+/* Верхние отклонения валов a–h (es), нижние отклонения валов k–p (ei), мкм.
+   Для отрицательных полей ei = es − IT. */
+const SHAFT_DEV = {
+  d: [-20, -30, -40, -50, -65, -80, -100, -120, -145, -170, -190, -210, -230],
+  e: [-14, -20, -25, -32, -40, -50, -60, -72, -85, -100, -110, -125, -135],
+  f: [-6, -10, -13, -16, -20, -25, -30, -36, -43, -50, -56, -62, -68],
+  g: [-2, -4, -5, -6, -7, -9, -10, -12, -14, -15, -17, -18, -20],
+  h: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  k: [0, 1, 1, 1, 2, 2, 2, 3, 3, 4, 4, 4, 5],
+  m: [2, 4, 6, 7, 8, 9, 11, 13, 15, 17, 20, 21, 23],
+  n: [4, 8, 10, 12, 15, 17, 20, 23, 27, 31, 34, 37, 40],
+  p: [6, 12, 15, 18, 22, 26, 32, 37, 43, 50, 56, 62, 68]
+};
+
+/* Нижние отклонения отверстий E, F, G (EI), мкм. H: EI = 0. */
+const HOLE_DEV = {
+  E: [14, 20, 25, 32, 40, 50, 60, 72, 85, 100, 110, 125, 135],
+  F: [6, 10, 13, 16, 20, 25, 30, 36, 43, 50, 56, 62, 68],
+  G: [2, 4, 5, 6, 7, 9, 10, 12, 14, 15, 17, 18, 20]
+};
+
+const HOLE_FIELDS = ['H', 'G', 'F', 'E', 'Js'];
+const SHAFT_FIELDS = ['h', 'g', 'f', 'e', 'd', 'js', 'k', 'm', 'n', 'p'];
+const IT_GRADES = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+
+const FITS_REF = [
+  { fit: 'H7/h6', type: 'Зазор', desc: 'Плотная посадка с малым зазором. Центрирование, направляющие, сменные втулки.' },
+  { fit: 'H7/g6', type: 'Зазор', desc: 'Скользящая. Плавное перемещение без люфта: шпиндели, ползуны, золотники.' },
+  { fit: 'H7/f7', type: 'Зазор', desc: 'Ходовая. Подшипники скольжения, валы в опорах, умеренные скорости.' },
+  { fit: 'H8/f7', type: 'Зазор', desc: 'Ходовая свободная. Тихоходные соединения, компенсация нагрева.' },
+  { fit: 'H11/h11', type: 'Зазор', desc: 'Грубая посадка. Неответственные и сварные соединения.' },
+  { fit: 'H9/h9', type: 'Зазор', desc: 'Средняя свободная посадка для неответственных подвижных деталей.' },
+  { fit: 'H7/js6', type: 'Переходная', desc: 'Центрирование при возможности разборки, малый зазор или малый натяг.' },
+  { fit: 'H7/k6', type: 'Переходная', desc: 'Фиксация от проворота: шкивы, зубчатые колёса, полумуфты.' },
+  { fit: 'H7/n6', type: 'Переходная', desc: 'Плотная переходная. Разборные соединения с гарантированным натягом.' },
+  { fit: 'H7/p6', type: 'Натяг', desc: 'Лёгкая прессовая. Запрессовка без дополнительного крепления.' }
+];
+
+const ROUGHNESS = [
+  { it: 'IT5–IT6', ra: 'Ra 0,4–0,8', method: 'Шлифование, тонкое точение, развёртывание' },
+  { it: 'IT7', ra: 'Ra 0,8–1,6', method: 'Чистовое точение, развёртывание' },
+  { it: 'IT8', ra: 'Ra 1,6–3,2', method: 'Получистовое точение' },
+  { it: 'IT9–IT10', ra: 'Ra 3,2–6,3', method: 'Черновое/получистовое точение' },
+  { it: 'IT11–IT12', ra: 'Ra 6,3–12,5', method: 'Черновое точение, сверление' },
+  { it: 'IT13–IT14', ra: 'Ra 12,5–25', method: 'Грубая обработка, отрезка' }
+];
+
+/* ---------------- Резьба ---------------- */
+const METRIC_THREADS = [
+  { d: 1,    p: 0.25, drill: 0.75, fine: [] },
+  { d: 1.2,  p: 0.25, drill: 0.95, fine: [] },
+  { d: 1.6,  p: 0.35, drill: 1.25, fine: [] },
+  { d: 2,    p: 0.40, drill: 1.60, fine: [0.25] },
+  { d: 2.5,  p: 0.45, drill: 2.05, fine: [0.35] },
+  { d: 3,    p: 0.50, drill: 2.50, fine: [0.35] },
+  { d: 3.5,  p: 0.60, drill: 2.90, fine: [] },
+  { d: 4,    p: 0.70, drill: 3.30, fine: [0.50] },
+  { d: 5,    p: 0.80, drill: 4.20, fine: [0.50] },
+  { d: 6,    p: 1.00, drill: 5.00, fine: [0.75, 0.50] },
+  { d: 8,    p: 1.25, drill: 6.80, fine: [1.00, 0.75] },
+  { d: 10,   p: 1.50, drill: 8.50, fine: [1.25, 1.00, 0.75] },
+  { d: 12,   p: 1.75, drill: 10.20, fine: [1.50, 1.25, 1.00] },
+  { d: 14,   p: 2.00, drill: 12.00, fine: [1.50, 1.25, 1.00] },
+  { d: 16,   p: 2.00, drill: 14.00, fine: [1.50, 1.00] },
+  { d: 18,   p: 2.50, drill: 15.50, fine: [2.00, 1.50, 1.00] },
+  { d: 20,   p: 2.50, drill: 17.50, fine: [2.00, 1.50, 1.00] },
+  { d: 22,   p: 2.50, drill: 19.50, fine: [2.00, 1.50, 1.00] },
+  { d: 24,   p: 3.00, drill: 21.00, fine: [2.00, 1.50, 1.00] },
+  { d: 27,   p: 3.00, drill: 24.00, fine: [2.00, 1.50, 1.00] },
+  { d: 30,   p: 3.50, drill: 26.50, fine: [2.00, 1.50, 1.00] },
+  { d: 33,   p: 3.50, drill: 29.50, fine: [2.00, 1.50] },
+  { d: 36,   p: 4.00, drill: 32.00, fine: [3.00, 2.00, 1.50] },
+  { d: 39,   p: 4.00, drill: 35.00, fine: [3.00, 2.00] },
+  { d: 42,   p: 4.50, drill: 37.50, fine: [3.00, 2.00, 1.50] },
+  { d: 45,   p: 4.50, drill: 40.50, fine: [3.00, 2.00, 1.50] },
+  { d: 48,   p: 5.00, drill: 43.00, fine: [3.00, 2.00, 1.50] },
+  { d: 52,   p: 5.00, drill: 47.00, fine: [3.00, 2.00] },
+  { d: 56,   p: 5.50, drill: 50.50, fine: [4.00, 3.00, 2.00] },
+  { d: 60,   p: 5.50, drill: 54.50, fine: [4.00, 3.00, 2.00] },
+  { d: 64,   p: 6.00, drill: 58.00, fine: [4.00, 3.00, 2.00] },
+  { d: 68,   p: 6.00, drill: 62.00, fine: [4.00, 3.00, 2.00] },
+  { d: 72,   p: 6.00, drill: 66.00, fine: [4.00, 3.00, 2.00] },
+  { d: 76,   p: 6.00, drill: 70.00, fine: [4.00, 3.00, 2.00] },
+  { d: 80,   p: 6.00, drill: 74.00, fine: [4.00, 3.00, 2.00] }
+];
+
+const PIPE_THREADS = [
+  { name: 'G1/8',  d: 9.728,  p: 0.907, tpi: 28, drill: 8.8 },
+  { name: 'G1/4',  d: 13.157, p: 1.337, tpi: 19, drill: 11.8 },
+  { name: 'G3/8',  d: 16.662, p: 1.337, tpi: 19, drill: 15.0 },
+  { name: 'G1/2',  d: 20.955, p: 1.814, tpi: 14, drill: 18.7 },
+  { name: 'G5/8',  d: 22.911, p: 1.814, tpi: 14, drill: 20.7 },
+  { name: 'G3/4',  d: 26.441, p: 1.814, tpi: 14, drill: 24.2 },
+  { name: 'G1',    d: 33.249, p: 2.309, tpi: 11, drill: 30.5 },
+  { name: 'G1 1/4', d: 41.910, p: 2.309, tpi: 11, drill: 39.0 },
+  { name: 'G1 1/2', d: 47.803, p: 2.309, tpi: 11, drill: 44.8 },
+  { name: 'G2',    d: 59.614, p: 2.309, tpi: 11, drill: 56.6 }
+];
+
+const TRAP_THREADS = [
+  { name: 'Tr8×1,5',  d: 8,  p: 1.5, drill: 6.5 },
+  { name: 'Tr10×2',   d: 10, p: 2.0, drill: 8.0 },
+  { name: 'Tr12×3',   d: 12, p: 3.0, drill: 9.0 },
+  { name: 'Tr14×3',   d: 14, p: 3.0, drill: 11.0 },
+  { name: 'Tr16×4',   d: 16, p: 4.0, drill: 12.0 },
+  { name: 'Tr18×4',   d: 18, p: 4.0, drill: 14.0 },
+  { name: 'Tr20×4',   d: 20, p: 4.0, drill: 16.0 },
+  { name: 'Tr22×5',   d: 22, p: 5.0, drill: 17.0 },
+  { name: 'Tr24×5',   d: 24, p: 5.0, drill: 19.0 },
+  { name: 'Tr26×5',   d: 26, p: 5.0, drill: 21.0 },
+  { name: 'Tr28×5',   d: 28, p: 5.0, drill: 23.0 },
+  { name: 'Tr30×6',   d: 30, p: 6.0, drill: 24.0 },
+  { name: 'Tr32×6',   d: 32, p: 6.0, drill: 26.0 },
+  { name: 'Tr36×6',   d: 36, p: 6.0, drill: 30.0 },
+  { name: 'Tr40×7',   d: 40, p: 7.0, drill: 33.0 },
+  { name: 'Tr44×7',   d: 44, p: 7.0, drill: 37.0 },
+  { name: 'Tr48×8',   d: 48, p: 8.0, drill: 40.0 },
+  { name: 'Tr52×8',   d: 52, p: 8.0, drill: 44.0 }
+];
+
+const TAP_TYPES = [
+  { name: 'Ручной комплект №1 / №2 / №3', use: 'Ручная нарезка, ремонт, единичные детали.', note: '№1 — черновой (1–2 витка), №2 — средний (3–4 витка), №3 — чистовой (полный профиль). Для сквозных отверстий часто хватает №1 + №2.' },
+  { name: 'Машинный с прямыми канавками', use: 'Глухие отверстия, чугун, бронза, латунь.', note: 'Стружка остаётся в канавках, поэтому нужен регулярный вывод метчика и продувка.' },
+  { name: 'Машинный с винтовыми канавками', use: 'Глухие отверстия в стали и алюминии.', note: 'Стружка отводится назад, к шпинделю. Хорош для глубоких глухих отверстий.' },
+  { name: 'Машинный с винтовым остроконечным забором', use: 'Сквозные отверстия.', note: 'Стружка проталкивается вперёд, не забивает канавки. Не применять в глухих отверстиях.' },
+  { name: 'Бесстружечный (раскатной)', use: 'Вязкие материалы: сталь, алюминий, медь.', note: 'Не режет, а выдавливает профиль. Отверстие больше: примерно d − 0,5P. Даёт прочную резьбу.' },
+  { name: 'Гаечный метчик', use: 'Гайки, серийное производство.', note: 'Короткий, длинная режущая часть, работает на проход.' }
+];
+
+const THREAD_LUBE = [
+  { group: 'Углеродистые и легированные стали', lube: 'Эмульсия 5–8%', note: 'При нарезании резьбы — сульфированное масло или паста.' },
+  { group: 'Нержавеющие стали', lube: 'Эмульсия 8–12% или сульфированное масло', note: 'Метчик HSS-E/Co, скорость ниже на 30–50%, не допускать наклёпа.' },
+  { group: 'Чугун', lube: 'Без СОЖ / воздух / отсос', note: 'Сухая стружка-пыль, эмульсия может дать ржавчину.' },
+  { group: 'Алюминий', lube: 'Керосин, эмульсия 5–8%', note: 'Острая геометрия и большие канавки, чтобы стружка не налипала.' },
+  { group: 'Медь, латунь, бронза', lube: 'Эмульсия 3–5% или без СОЖ', note: 'Латунь не любит перегрев, бронза даёт хрупкую стружку.' },
+  { group: 'Титан и жаропрочные', lube: 'Обильная эмульсия 8–12%, высокое давление', note: 'Только острая кромка, малые скорости, без остановок в резе.' }
+];
+
+/* ---------------- Инструмент ---------------- */
+const TOOL_TYPES = [
+  { name: 'Проходной прямой', use: 'Наружное продольное точение', note: 'Универсальный резец. Минимальный вылет, надёжный зажим.' },
+  { name: 'Проходной отогнутый', use: 'Наружное точение и подрезка торца', note: 'Позволяет работать у патрона и подрезать уступы.' },
+  { name: 'Подрезной', use: 'Торцы, уступы, фаски', note: 'Подача поперечная. Следите за зазором между резцом и патроном.' },
+  { name: 'Отрезной', use: 'Отрезка заготовки, канавки', note: 'Ширина 2–5 мм. Минимальный вылет, жёсткость, обильная СОЖ.' },
+  { name: 'Расточной', use: 'Внутренние отверстия', note: 'Жёсткость ниже, чем у наружного. Вылет — минимально необходимый.' },
+  { name: 'Резьбовой', use: 'Метрическая, дюймовая, трапецеидальная резьба', note: 'Профиль 60° / 55° / 30°. Вершина должна соответствовать шагу.' },
+  { name: 'Канавочный', use: 'Наружные и внутренние канавки', note: 'Ширина равна ширине канавки или чуть меньше, подача поперечная.' },
+  { name: 'Фасонный', use: 'Профильные детали, галтели, радиусы', note: 'Широкий профиль требует малой подачи и высокой жёсткости.' }
+];
+
+const GEOMETRY = [
+  { material: 'Углеродистая сталь', gamma: '10–15°', alpha: '6–8°', radius: '0,4–1,2 мм', note: 'Острая кромка, стружколом для черновой.' },
+  { material: 'Легированная сталь', gamma: '8–12°', alpha: '6–8°', radius: '0,4–0,8 мм', note: 'При HB > 250 — меньший передний угол и упрочнение.' },
+  { material: 'Нержавеющая сталь', gamma: '12–18°', alpha: '6–8°', radius: '0,4–0,8 мм', note: 'Острая полированная кромка, большая подача против наклёпа.' },
+  { material: 'Чугун', gamma: '0–5°', alpha: '6–8°', radius: '0,8–2,0 мм', note: 'Прочная кромка, отрицательный/нулевой передний угол.' },
+  { material: 'Алюминий', gamma: '25–35°', alpha: '8–12°', radius: '0,4–1,2 мм', note: 'Полированная геометрия, большие канавки для стружки.' },
+  { material: 'Титан', gamma: '8–12°', alpha: '8–10°', radius: '0,4–0,8 мм', note: 'Острая кромка, без трения, обильная СОЖ.' },
+  { material: 'Жаропрочные сплавы', gamma: '5–10°', alpha: '8–10°', radius: '0,4–0,8 мм', note: 'Малые скорости, максимальная жёсткость системы.' }
+];
+
+const PLATES = [
+  { iso: 'CNMG / CNMA', shape: '80° ромб', edges: '4', use: 'Черновое и получистовое точение, универсал', note: 'Двусторонняя, прочная кромка. Хороша для стали и чугуна.' },
+  { iso: 'WNMG', shape: '80° тригон', edges: '6', use: 'Черновое точение, торцевание', note: 'Больше режущих кромок, высокая жёсткость.' },
+  { iso: 'SNMG', shape: 'Квадрат 90°', edges: '8', use: 'Черновое точение, тяжёлые условия', note: 'Максимальная прочность, склонна к вибрациям на малых глубинах.' },
+  { iso: 'DNMG', shape: '55° ромб', edges: '4', use: 'Профильное точение, копирование', note: 'Компромисс между доступом и прочностью.' },
+  { iso: 'VNMG', shape: '35° ромб', edges: '2', use: 'Чистовое профильное точение', note: 'Малый угол в плане, тонкая и хрупкая кромка.' },
+  { iso: 'CCMT', shape: '80° ромб', edges: '2', use: 'Расточка, получистовое точение', note: 'Положительная геометрия, малые силы резания.' },
+  { iso: 'DCMT', shape: '55° ромб', edges: '2', use: 'Чистовое и профильное точение, расточка', note: 'Хороший доступ к уступам и канавкам.' },
+  { iso: 'VCMT', shape: '35° ромб', edges: '2', use: 'Тонкое профильное точение', note: 'Для малых глубин и сложных контуров.' },
+  { iso: 'TCMT', shape: 'Треугольник 60°', edges: '3', use: 'Расточка, чистовое точение', note: 'Удобна для внутренней обработки.' }
+];
+
+const DRILLING = [
+  { material: 'Углеродистая сталь', hss: '20–30', carb: '80–120', feed: '0,05–0,20', note: 'СОЖ 5–8%, периодический вывод сверла.' },
+  { material: 'Легированная сталь', hss: '15–25', carb: '70–110', feed: '0,05–0,18', note: 'При HB > 250 — снизить Vc на 20%.' },
+  { material: 'Нержавеющая сталь', hss: '8–12', carb: '40–60', feed: '0,04–0,12', note: 'Обильная СОЖ, не допускать наклёпа и остановки в отверстии.' },
+  { material: 'Чугун', hss: '20–30', carb: '70–100', feed: '0,08–0,25', note: 'Без СОЖ или воздух, отсос пыли.' },
+  { material: 'Алюминий', hss: '60–120', carb: '150–300', feed: '0,08–0,30', note: 'Керосин/СОЖ, полированные канавки.' },
+  { material: 'Титан', hss: '8–12', carb: '30–50', feed: '0,04–0,10', note: 'Малые скорости, большое давление СОЖ.' }
+];
+
+const COOLANTS = [
+  { material: 'Углеродистая / легированная сталь', coolant: 'Эмульсия 5–8%', note: 'Основной вариант для точения и сверления.' },
+  { material: 'Нержавеющая сталь', coolant: 'Эмульсия 8–12%', note: 'При резьбе и глубоком сверлении — сульфированное масло.' },
+  { material: 'Чугун', coolant: 'Без СОЖ / воздух / отсос', note: 'Вода вызывает ржавчину и размывает графит.' },
+  { material: 'Алюминий', coolant: 'Керосин или эмульсия 5%', note: 'Не применять воду без ингибитора.' },
+  { material: 'Латунь / бронза', coolant: 'Эмульсия 3–5% или без', note: 'Следить за температурой, особенно на латуни.' },
+  { material: 'Титан', coolant: 'Обильная эмульсия 8–12%, высокое давление', note: 'Не допускать трения кромки о деталь.' },
+  { material: 'Жаропрочные сплавы', coolant: 'Масляная СОЖ / эмульсия, высокое давление', note: 'Максимальный отвод тепла из зоны резания.' }
+];
+
+const SAFETY = [
+  'Работайте в защитных очках или щитке. Стружка летит быстро и горячо.',
+  'Не тормозите патрон рукой и не измеряйте деталь на ходу.',
+  'Уберите ключ из патрона перед пуском. Проверьте, что патрон затянут.',
+  'Заготовка должна быть зажата надёжно, вылет — минимально необходимым.',
+  'Стружку удаляйте крючком или щёткой, не руками.',
+  'Не работайте в перчатках у вращающегося патрона и детали.',
+  'Проверяйте люфты суппорта и зазоры в направляющих.',
+  'При ЧПУ проверьте коррекции инструмента и траекторию на холостом ходу.',
+  'Не оставляйте станок включённым без присмотра.',
+  'СОЖ не должна попадать на пол: риск падения.'
+];
+
+/* ---------------- ЧПУ ---------------- */
+const GCODES = [
+  { code: 'G00', desc: 'Ускоренное перемещение', note: 'Не для резания. Проверяйте безопасные подводы.' },
+  { code: 'G01', desc: 'Линейная интерполяция', note: 'Рабочая подача F (мм/об при G99).' },
+  { code: 'G02', desc: 'Круговая интерполяция по часовой', note: 'R или I/K. На токарном — радиус в плоскости ZX.' },
+  { code: 'G03', desc: 'Круговая интерполяция против часовой', note: 'Проверяйте направление и радиус.' },
+  { code: 'G04', desc: 'Пауза (выдержка)', note: 'G04 X1.0 или U1.0 — секунды/обороты.' },
+  { code: 'G09', desc: 'Точный останов', note: 'Задержка на углу, убирает скругление.' },
+  { code: 'G10', desc: 'Запись в смещения/параметры', note: 'G10 L2 P… — запись рабочих нулей.' },
+  { code: 'G17 / G18 / G19', desc: 'Плоскость XY / ZX / YZ', note: 'Для токарного обычно G18 (ZX).' },
+  { code: 'G20 / G21', desc: 'Дюймы / миллиметры', note: 'Проверьте перед пуском программы.' },
+  { code: 'G28', desc: 'Возврат в референтную точку', note: 'G28 U0 W0 — часто используемый выход в ноль.' },
+  { code: 'G30', desc: 'Возврат во вторую референтную точку', note: 'Например, для смены инструмента.' },
+  { code: 'G32', desc: 'Резьба однопроходная', note: 'Устаревший способ, но встречается на старых стойках.' },
+  { code: 'G40', desc: 'Отмена коррекции', note: 'Отмена G41/G42.' },
+  { code: 'G41 / G42', desc: 'Коррекция радиуса резца влево / вправо', note: 'Нужна для контуров с радиусом и фаской.' },
+  { code: 'G50', desc: 'Ограничение оборотов / максимум шпинделя', note: 'G50 S2500 — предел при G96.' },
+  { code: 'G52', desc: 'Локальная система координат', note: 'Смещение от рабочего нуля.' },
+  { code: 'G53', desc: 'Перемещение в машинных координатах', note: 'Игнорирует рабочие смещения.' },
+  { code: 'G54–G59', desc: 'Рабочие нули (смещения)', note: 'G54 — самый распространённый.' },
+  { code: 'G65', desc: 'Вызов макропрограммы', note: 'Пользовательские циклы и параметры.' },
+  { code: 'G70', desc: 'Чистовой проход после G71/G72', note: 'G70 P… Q… F…' },
+  { code: 'G71', desc: 'Черновой цикл продольного точения', note: 'Две строки: параметры + контур P/Q.' },
+  { code: 'G72', desc: 'Черновой цикл торцевого точения', note: 'Для обработки торцов и коротких уступов.' },
+  { code: 'G73', desc: 'Цикл повторения контура', note: 'Литьё/поковка с равномерным припуском.' },
+  { code: 'G74', desc: 'Сверлильный / торцевой канавочный цикл', note: 'На токарном — осевое сверление с дроблением стружки.' },
+  { code: 'G75', desc: 'Канавочный / отрезной цикл', note: 'Радиальные канавки и отрезка.' },
+  { code: 'G76', desc: 'Многопроходный резьбовой цикл', note: 'Две строки: параметры + диаметр/шаг.' },
+  { code: 'G80', desc: 'Отмена циклов', note: 'После G74/G75/G76.' },
+  { code: 'G90 / G91', desc: 'Абсолютный / инкрементальный отсчёт', note: 'G90 X… Z… или G91 U… W…' },
+  { code: 'G92', desc: 'Установка координат / резьбовой цикл', note: 'Зависит от стойки: на Fanuc часто резьба.' },
+  { code: 'G94 / G95', desc: 'Подача мм/мин / мм/об', note: 'На токарном обычно G95 (или G99 на Fanuc).' },
+  { code: 'G96', desc: 'Постоянная скорость резания', note: 'G96 S180 — 180 м/мин, обороты меняются от диаметра.' },
+  { code: 'G97', desc: 'Постоянные обороты', note: 'G97 S800 — 800 об/мин. Нужно для резьбы и сверления.' },
+  { code: 'G98 / G99', desc: 'Подача мм/мин / мм/об (Fanuc)', note: 'На токарном почти всегда G99.' }
+];
+
+const MCODES = [
+  { code: 'M00', desc: 'Программный останов', note: 'Остановка шпинделя и подачи.' },
+  { code: 'M01', desc: 'Останов с подтверждением', note: 'Работает, если включена кнопка «Optional stop».' },
+  { code: 'M02', desc: 'Конец программы', note: 'Сброс в начало.' },
+  { code: 'M03', desc: 'Шпиндель по часовой', note: 'Основное направление для правого резца.' },
+  { code: 'M04', desc: 'Шпиндель против часовой', note: 'Для левого резца, метчиков и особых случаев.' },
+  { code: 'M05', desc: 'Останов шпинделя', note: 'Перед сменой инструмента и измерениями.' },
+  { code: 'M08', desc: 'СОЖ включить', note: 'Подача СОЖ в зону резания.' },
+  { code: 'M09', desc: 'СОЖ выключить', note: 'Перед концом программы.' },
+  { code: 'M19', desc: 'Ориентация шпинделя', note: 'Фиксация угла для смены инструмента/патрона.' },
+  { code: 'M30', desc: 'Конец программы и перемотка', note: 'Самый частый финал.' },
+  { code: 'M41 / M42', desc: 'Пониженный / повышенный ряд', note: 'Переключение диапазона коробки скоростей.' },
+  { code: 'M98 / M99', desc: 'Вызов подпрограммы / возврат', note: 'M98 P… L… — повторы.' }
+];
+
+const CNC_PROGRAMS = [
+  {
+    title: 'Вал: черновой G71 + чистовой G70',
+    desc: 'Заготовка Ø52, контур от Ø30 с фаской 5×45° и радиусом R5. Классическая двухстрочная запись Fanuc.',
+    code: `O0001 (ВАЛ - ЧЕРНОВАЯ + ЧИСТОВАЯ)
+G21 G18 G40 G99 (мм, плоскость ZX, без коррекции, подача мм/об)
+G28 U0 W0 (выход в ноль)
+T0101 (проходной резец, коррекция 01)
+G50 S2500 (ограничение оборотов)
+G96 S180 M03 (постоянная Vc 180 м/мин, прямой ход)
+G00 X52 Z2 M08 (быстрый подвод, СОЖ)
+G71 U1.5 R0.5 (черновой: глубина 1.5 мм, отход 0.5)
+G71 P100 Q200 U0.4 W0.1 F0.25 (припуск X 0.4, Z 0.1)
+N100 G00 X30 (начало контура)
+G01 Z0 F0.1
+G01 X40 Z-5 (фаска 5x45)
+G01 Z-30
+G02 X50 Z-35 R5 (радиус)
+N200 G01 X52 (конец контура)
+G70 P100 Q200 F0.1 (чистовой проход)
+G00 X100 Z100 M09
+M05
+M30`
+  },
+  {
+    title: 'Резьба M24×3 циклом G76',
+    desc: 'Наружная метрическая резьба. Высота профиля 0,6134·P = 1,84 мм, диаметр впадин ≈ 20,3 мм.',
+    code: `O0002 (РЕЗЬБА M24x3)
+G21 G18 G40 G99
+G28 U0 W0
+T0303 (резьбовой резец)
+G97 S600 M03 (для резьбы - постоянные обороты)
+G00 X26 Z5 M08
+G76 P021060 Q100 R0.05 (2 чистовых, отвод 1.0P, угол 60°, мин. глубина 0.1)
+G76 X20.3 Z-40 P1840 Q450 F3.0 (X впадин, длина, высота 1.84 мм, первый рез 0.45)
+G00 X100 Z100 M09
+M05
+M30`
+  },
+  {
+    title: 'Канавка и отрезка G75',
+    desc: 'Радиальная канавка шириной 3 мм и отрезка. Подача небольшая, обязательно СОЖ.',
+    code: `O0003 (КАНАВКА + ОТРЕЗКА)
+G21 G18 G40 G99
+G28 U0 W0
+T0202 (отрезной резец 3 мм)
+G97 S800 M03
+G00 X42 Z-20 M08 (подвод к канавке)
+G75 R0.5
+G75 X30 Z-20 P2000 Q0 F0.08 (X до 30, шаг 2 мм)
+G00 X42
+Z-45 (подвод к отрезке)
+G75 R0.5
+G75 X0 Z-45 P2000 F0.08 (отрезка)
+G00 X100 Z100 M09
+M05
+M30`
+  },
+  {
+    title: 'Осевое сверление G74',
+    desc: 'Сверление по оси с дроблением стружки. Q — глубина одного прохода в микронах.',
+    code: `O0004 (СВЕРЛЕНИЕ G74)
+G21 G18 G40 G99
+G28 U0 W0
+T0404 (сверло Ø8)
+G97 S900 M03
+G00 X0 Z3 M08
+G74 R0.5 (отход 0.5 мм)
+G74 Z-30 Q3000 F0.08 (сверлить до Z-30, шаг 3 мм)
+G00 X100 Z100 M09
+M05
+M30`
+  }
+];
+
+const CNC_DIFF = [
+  { param: 'Постоянная скорость', fanuc: 'G96 S180', siemens: 'G96 S180 LIMS=2500' },
+  { param: 'Подача мм/об', fanuc: 'G99', siemens: 'G95' },
+  { param: 'Черновой цикл', fanuc: 'G71 / G70', siemens: 'CYCLE95' },
+  { param: 'Резьбовой цикл', fanuc: 'G76', siemens: 'CYCLE97' },
+  { param: 'Коррекция инструмента', fanuc: 'T0101', siemens: 'T1 D1' },
+  { param: 'Радиусная коррекция', fanuc: 'G41 / G42', siemens: 'G41 / G42' },
+  { param: 'Дуга через радиус', fanuc: 'G02 X… Z… R…', siemens: 'G02 X… Z… CR=…' },
+  { param: 'Подпрограмма', fanuc: 'M98 P… / M99', siemens: 'CALL / RET' },
+  { param: 'Рабочий ноль', fanuc: 'G54', siemens: 'G54 / TRANS' },
+  { param: 'Конец программы', fanuc: 'M30', siemens: 'M30' }
+];
+
+const CNC_TIPS = [
+  'Перед первым пуском новой программы прогоните её без заготовки, с поднятым резцом.',
+  'Проверьте, что G50 S… не меньше рабочих оборотов и не больше паспортного максимума.',
+  'Для G96 всегда задавайте предел G50: на малом диаметре обороты могут улететь.',
+  'Коррекция радиуса резца нужна, если на контуре есть радиусы, фаски и конусы.',
+  'После смены пластины проверьте вылет и обновите коррекцию по X/Z.',
+  'Не используйте G00 там, где резец может задеть патрон или деталь.',
+  'Следите за направлением отвода стружки: при отрезке стружка не должна попадать на деталь.',
+  'Для резьбы G76 обороты постоянные (G97), иначе шаг будет неравномерным.',
+  'Первый резьбовой проход не должен быть слишком глубоким: 0,3–0,5 мм на шаге 2–3 мм.',
+  'Ведите журнал коррекций: после правки резца старые значения уже не работают.'
+];
+
+/* ---------------- Советы и прочее ---------------- */
+const TIPS = [
+  'Стружка соломенного цвета — нормально. Синяя и дым — перегрев, снижайте скорость или добавляйте СОЖ.',
+  'Для нержавейки лучше больше подача и меньше скорость, чем наоборот: меньше наклёпа.',
+  'Перед нарезанием резьбы проверьте диаметр под метчик: для метрической резьбы d − P.',
+  'Отрезной резец должен быть выставлен строго по центру, иначе он «лезет» под деталь или трётся.',
+  'Не останавливайте подачу, пока резец в резе: на нержавейке и титане это даёт наклёп и скол кромки.',
+  'Лимбы станка — не истина: проверяйте диаметр микрометром после первого прохода.',
+  'Если появилась вибрация, сначала уменьшите вылет резца, потом снижайте скорость.',
+  'Метчик в глухое отверстие — только с винтовыми канавками и регулярным выводом.',
+  'При чистовой обработке радиус вершины 0,4 мм даёт меньшую шероховатость, чем 0,8 мм при той же подаче.',
+  'После заточки резца проверьте задний угол: он не должен тереть о деталь.',
+  'СОЖ подводите непосредственно в зону резания, а не «рядом со станком».',
+  'Перед сменой патрона убедитесь, что шпиндель остановлен и кнопка стоп нажата.',
+  'Записывайте удачные режимы в дневник: через месяц они сэкономят вам смену.',
+  'Для алюминия керосин часто работает лучше универсальной эмульсии.',
+  'Проверяйте биение заготовки в патроне: даже 0,2 мм дают неравномерный припуск и удары.'
+];
+
+const DIARY_OPERATIONS = ['Черновая', 'Получистовая', 'Чистовая', 'Торцевание', 'Расточка', 'Резьба', 'Сверление', 'Отрезка', 'Канавка', 'Прочее'];
+const DIARY_TOOLS = ['Проходной', 'Подрезной', 'Расточной', 'Отрезной', 'Резьбовой', 'Канавочный', 'Сверло', 'Метчик', 'Плашка', 'Прочее'];
+
+</script>
+<script>
+'use strict';
+
+/* ============================================================
+   Общие помощники, иконки, оформление
+   ============================================================ */
+
+const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (ch) => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+}[ch]));
+
+const num = (source) => {
+  const raw = (source && typeof source === 'object' && 'value' in source) ? source.value : source;
+  if (raw === null || raw === undefined) return NaN;
+  const text = String(raw).trim().replace(/\s/g, '').replace(',', '.');
+  if (!text) return NaN;
+  const value = Number(text);
+  return Number.isFinite(value) ? value : NaN;
+};
+
+const fmt = (value, digits = 1) => {
+  if (!Number.isFinite(value)) return '—';
+  return value.toLocaleString('ru-RU', {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits
+  });
+};
+
+const r1 = (value) => Math.round(value * 10) / 10;
+const r2 = (value) => Math.round(value * 100) / 100;
+const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+const store = {
+  get(key, fallback = null) {
+    try {
+      const value = localStorage.getItem(key);
+      return value === null ? fallback : value;
+    } catch { return fallback; }
+  },
+  set(key, value) {
+    try { localStorage.setItem(key, value); } catch { /* ignore */ }
+  },
+  del(key) {
+    try { localStorage.removeItem(key); } catch { /* ignore */ }
+  }
+};
+
+const DIARY_KEY = 'turner:diary:v1';
+const THEME_KEY = 'turner:theme';
+
+function todayISO() {
+  const now = new Date();
+  const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0, 10);
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  const parts = String(iso).split('-');
+  if (parts.length !== 3) return iso;
+  return `${parts[2]}.${parts[1]}.${parts[0]}`;
+}
+
+function formatTime(minutes) {
+  if (!Number.isFinite(minutes) || minutes <= 0) return '—';
+  if (minutes < 1) return `${Math.round(minutes * 60)} с`;
+  const whole = Math.floor(minutes);
+  const seconds = Math.round((minutes - whole) * 60);
+  return seconds ? `${whole} мин ${seconds} с` : `${whole} мин`;
+}
+
+function uid() {
+  return 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function csvCell(value) {
+  const text = String(value ?? '');
+  return /[;"\n\r]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+/* ---------------- иконки ---------------- */
+const ICONS = {
+  home: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6.5h5V21"/>',
+  modes: '<path d="M12 14l4.5-4.5"/><path d="M3.3 19a10 10 0 1 1 17.4 0"/><circle cx="12" cy="14" r="1.5"/>',
+  tolerances: '<path d="M21.3 8.7 8.7 21.3a1 1 0 0 1-1.4 0l-4.6-4.6a1 1 0 0 1 0-1.4L15.3 2.7a1 1 0 0 1 1.4 0l4.6 4.6a1 1 0 0 1 0 1.4Z"/><path d="m7.5 10.5 2 2"/><path d="m10.5 7.5 2 2"/><path d="m13.5 4.5 2 2"/><path d="m4.5 13.5 2 2"/>',
+  threads: '<path d="M9 2.5h6v3.2H9z"/><path d="M10 5.7h4l-1 13-1 2.1-1-2.1z"/><path d="M10.4 9.5h3.2M10.7 12.5h2.6M11 15.5h2"/>',
+  materials: '<path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 16 9 5 9-5"/>',
+  tools: '<path d="M14.7 6.3a4.5 4.5 0 0 0-6 6L3 18l3 3 5.7-5.7a4.5 4.5 0 0 0 6-6l-3 3-3-3 3-3Z"/>',
+  cnc: '<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3"/><rect x="9" y="9" width="6" height="6" rx="1"/>',
+  formulas: '<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 19h.01M12 19h.01M16 19h.01"/>',
+  diary: '<path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v18H6.5A2.5 2.5 0 0 0 4 22V4.5Z"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M8 7h8M8 11h5"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+  warning: '<path d="M10.3 3.6 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/>',
+  check: '<path d="m20 6-11 11-5-5"/>',
+  copy: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+  download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>',
+  upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 8 5-5 5 5"/><path d="M12 3v12"/>',
+  print: '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/>',
+  trash: '<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 15H6L5 6"/><path d="M10 11v6M14 11v6"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  spark: '<path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3Z"/>',
+  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  save: '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/>'
+};
+
+function icon(name, cls = '') {
+  return `<svg class="icon ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ''}</svg>`;
+}
+
+/* ---------------- тема ---------------- */
+function setTheme(theme) {
+  const next = theme === 'light' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  const btn = $('#themeBtn');
+  if (btn) {
+    btn.textContent = next === 'dark' ? '☀' : '☾';
+    btn.title = next === 'dark' ? 'Светлая тема' : 'Тёмная тема';
+  }
+  store.set(THEME_KEY, next);
+}
+
+function initTheme() {
+  const saved = store.get(THEME_KEY, 'dark');
+  setTheme(saved);
+  const btn = $('#themeBtn');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+    });
+  }
+}
+
+/* ---------------- уведомления и копирование ---------------- */
+let toastTimer = null;
+
+function toast(message, type = 'ok') {
+  const el = $('#toast');
+  if (!el) return;
+  el.textContent = message;
+  el.className = `toast show ${type}`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.className = `toast ${type}`; }, 2800);
+}
+
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    toast('Скопировано в буфер обмена');
+    return;
+  } catch { /* fallback */ }
+  const area = document.createElement('textarea');
+  area.value = text;
+  area.style.position = 'fixed';
+  area.style.opacity = '0';
+  document.body.appendChild(area);
+  area.select();
+  try {
+    document.execCommand('copy');
+    toast('Скопировано в буфер обмена');
+  } catch {
+    toast('Не удалось скопировать', 'err');
+  }
+  area.remove();
+}
+
+/* ---------------- расчётные помощники ---------------- */
+function nearestSpeed(n) {
+  return MACHINE_SPEEDS.reduce((best, speed) => (
+    Math.abs(speed - n) < Math.abs(best - n) ? speed : best
+  ), MACHINE_SPEEDS[0]);
+}
+
+function lowerSpeed(n) {
+  const list = MACHINE_SPEEDS.filter((speed) => speed <= n);
+  return list.length ? list[list.length - 1] : MACHINE_SPEEDS[0];
+}
+
+function materialById(id) {
+  return MATERIALS.find((m) => m.id === id) || MATERIALS[0];
+}
+
+function materialOptions(selectedId, withHardness = true) {
+  const groups = [...new Set(MATERIALS.map((m) => m.group))];
+  return groups.map((group) => {
+    const items = MATERIALS.filter((m) => m.group === group).map((m) => {
+      const label = withHardness ? `${m.name} · ${m.hb} HB` : m.name;
+      return `<option value="${m.id}"${m.id === selectedId ? ' selected' : ''}>${esc(label)}</option>`;
+    }).join('');
+    return `<optgroup label="${esc(group)}">${items}</optgroup>`;
+  }).join('');
+}
+
+function vcRange(material, toolKey) {
+  if (toolKey === 'hss') return material.vcHss.slice();
+  if (toolKey === 'ceramic') return material.vcCarb.map((value) => value * 1.8);
+  return material.vcCarb.slice();
+}
+
+function defaultFeed(material, opKey) {
+  const [lo, hi] = material.feed;
+  if (opKey === 'rough') return r2(lo + (hi - lo) * 0.8);
+  if (opKey === 'semi') return r2(lo + (hi - lo) * 0.45);
+  return r2(clamp(lo * 0.5, 0.04, 0.15));
+}
+
+function recommendedFor(material, opKey, toolKey) {
+  const range = vcRange(material, toolKey);
+  const op = OPERATIONS[opKey] || OPERATIONS.semi;
+  const average = (range[0] + range[1]) / 2;
+  return {
+    vc: Math.max(1, Math.round(average * op.vcFactor)),
+    feed: defaultFeed(material, opKey),
+    ap: Math.min(op.ap, material.ap[1]),
+    range
+  };
+}
+
+/* ---------------- подсветка G-кода ---------------- */
+function highlightCode(code) {
+  return String(code).split('\n').map((line) => {
+    const commentAt = line.indexOf('(');
+    let main = line;
+    let comment = '';
+    if (commentAt >= 0) {
+      main = line.slice(0, commentAt);
+      comment = line.slice(commentAt);
+    }
+    let html = esc(main).replace(/\b(G\d{1,2}|M\d{1,2})\b/g, (match) => (
+      `<span class="${match[0] === 'G' ? 'gcode' : 'mcode'}">${match}</span>`
+    ));
+    if (comment) html += `<span class="cmt">${esc(comment)}</span>`;
+    return html;
+  }).join('\n');
+}
+
+</script>
+<script>
+'use strict';
+
+/* ============================================================
+   Главная страница
+   ============================================================ */
+
+const HOME_SECTIONS = [
+  { key: 'modes', title: 'Режимы резания', text: 'Обороты, подача, мощность и время по марке металла.' },
+  { key: 'tolerances', title: 'Допуски и посадки', text: 'Калькулятор ISO 286, квалитеты IT5–IT14, зазоры и натяги.' },
+  { key: 'threads', title: 'Резьба и метчики', text: 'Свёрла, метчики, плашки и размеры под резьбу.' },
+  { key: 'materials', title: 'Металлы', text: '22 марки: твёрдость, обрабатываемость и режимы.' },
+  { key: 'tools', title: 'Инструмент и СОЖ', text: 'Резцы, пластины, геометрия заточки, охлаждение.' },
+  { key: 'cnc', title: 'ЧПУ', text: 'G-коды, циклы G71/G76 и готовые примеры программ.' },
+  { key: 'formulas', title: 'Формулы', text: 'Конус, шестигранник, масса, шероховатость, время.' },
+  { key: 'diary', title: 'Дневник', text: 'Личный журнал режимов, деталей и результатов.' }
+];
+
+function renderHome() {
+  const diary = getDiary();
+  const latest = diary.slice(0, 3);
+  const day = Math.floor(new Date().setHours(0, 0, 0, 0) / 86400000);
+  const tip = TIPS[((day % TIPS.length) + TIPS.length) % TIPS.length];
+  const threadCount = METRIC_THREADS.length + PIPE_THREADS.length + TRAP_THREADS.length;
+
+  return `
+  <section class="hero">
+    <div class="hero-main">
+      <span class="eyebrow">Справочник + расчёты</span>
+      <h2>Всё, что нужно <br><em>у станка</em></h2>
+      <p>Режимы резания, допуски и посадки, метчики и плашки, марки сталей, ЧПУ и личный дневник работ. Без интернета и регистрации.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#modes">${icon('modes')} Рассчитать режим</a>
+        <a class="btn" href="#diary">${icon('diary')} Открыть дневник</a>
+      </div>
+      <div class="hero-tags">
+        <span class="badge amber">22 марки металлов</span>
+        <span class="badge cyan">${threadCount} типоразмеров резьбы</span>
+        <span class="badge green">ISO 286</span>
+        <span class="badge violet">Fanuc / Siemens</span>
+      </div>
+    </div>
+
+    <div class="card hero-widget">
+      <h3>${icon('spark')} Быстрый расчёт</h3>
+      <div class="quick-fields">
+        <div class="field">
+          <label for="qMat">Материал</label>
+          <select id="qMat" class="select">${materialOptions('40xl')}</select>
+        </div>
+        <div class="field">
+          <label for="qOp">Операция</label>
+          <select id="qOp" class="select">
+            <option value="rough">Черновая</option>
+            <option value="semi" selected>Получистовая</option>
+            <option value="finish">Чистовая</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="qD">Диаметр обработки, мм</label>
+          <input id="qD" class="input mono" type="number" min="1" step="0.1" value="80">
+        </div>
+      </div>
+      <div class="quick-result" id="qRes"></div>
+      <div style="margin-top:10px"><a class="link-arrow" href="#modes">Полный расчёт с мощностью и временем ${icon('arrow')}</a></div>
+    </div>
+  </section>
+
+  <div class="stat-grid">
+    <div class="stat">
+      <div class="stat-icon">${icon('materials')}</div>
+      <div><b>${MATERIALS.length}</b><span>марок металлов</span></div>
+    </div>
+    <div class="stat">
+      <div class="stat-icon">${icon('threads')}</div>
+      <div><b>${threadCount}</b><span>типоразмеров резьбы</span></div>
+    </div>
+    <div class="stat">
+      <div class="stat-icon">${icon('tolerances')}</div>
+      <div><b>10</b><span>квалитетов IT5–IT14</span></div>
+    </div>
+    <div class="stat">
+      <div class="stat-icon">${icon('diary')}</div>
+      <div><b>${diary.length}</b><span>записей в дневнике</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h3>Разделы справочника</h3>
+      <span class="badge gray">нажмите, чтобы открыть</span>
+    </div>
+    <div class="section-grid">
+      ${HOME_SECTIONS.map((item) => {
+        const route = ROUTES[item.key];
+        return `
+        <a class="section-card" href="#${item.key}">
+          <span class="sc-arrow">↗</span>
+          <span class="sc-icon">${icon(route.icon)}</span>
+          <b>${item.title}</b>
+          <span>${item.text}</span>
+        </a>`;
+      }).join('')}
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:16px">
+    <div class="card">
+      <div class="tip-box">
+        <div class="tip-icon">${icon('spark')}</div>
+        <div><b>Совет смены</b><p>${esc(tip)}</p></div>
+      </div>
+      <div class="divider"></div>
+      <h3>Популярные посадки</h3>
+      <table class="mini-table">
+        <tbody>
+          <tr><td>H7/h6</td><td>Плотная с зазором</td><td class="num">центрирование</td></tr>
+          <tr><td>H7/g6</td><td>Скользящая</td><td class="num">направляющие</td></tr>
+          <tr><td>H7/k6</td><td>Переходная</td><td class="num">шкивы, колёса</td></tr>
+          <tr><td>H7/p6</td><td>Прессовая</td><td class="num">запрессовка</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:10px"><a class="link-arrow" href="#tolerances">Калькулятор посадок ${icon('arrow')}</a></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h3>Последние записи</h3>
+        <a class="link-arrow" href="#diary">Весь дневник ${icon('arrow')}</a>
+      </div>
+      ${latest.length ? latest.map((entry) => homeEntry(entry)).join('') : `
+        <div class="empty">
+          <b>Дневник пока пуст</b>
+          Записывайте удачные режимы, инструмент и результаты — через месяц это сэкономит смену.
+          <div style="margin-top:12px"><a class="btn btn-sm" href="#diary">Добавить первую запись</a></div>
+        </div>`}
+    </div>
+  </div>`;
+}
+
+function homeEntry(entry) {
+  const vc = entry.d > 0 && entry.n > 0 ? Math.PI * entry.d * entry.n / 1000 : null;
+  return `
+  <div class="entry">
+    <div class="entry-head">
+      <div class="entry-title">
+        <b>${esc(entry.part || 'Без названия')}</b>
+        <span class="badge gray">${esc(entry.material || '—')}</span>
+      </div>
+      <span class="entry-date">${formatDate(entry.date)}</span>
+    </div>
+    <div class="entry-meta">
+      ${entry.operation ? `<span class="badge">${esc(entry.operation)}</span>` : ''}
+      ${entry.d ? `<span class="badge">Ø ${fmt(entry.d, 1)} мм</span>` : ''}
+      ${entry.n ? `<span class="badge">${fmt(entry.n, 0)} об/мин</span>` : ''}
+      ${entry.f ? `<span class="badge">f ${fmt(entry.f, 2)} мм/об</span>` : ''}
+      ${vc ? `<span class="badge amber">Vc ${fmt(vc, 0)} м/мин</span>` : ''}
+    </div>
+  </div>`;
+}
+
+function initHome() {
+  const material = $('#qMat');
+  const operation = $('#qOp');
+  const diameter = $('#qD');
+  if (!material || !operation || !diameter) return;
+  const calc = () => {
+    const m = materialById(material.value);
+    const opKey = operation.value;
+    const d = num(diameter);
+    if (!(d > 0)) {
+      $('#qRes').innerHTML = '<div class="qf-note">Укажите диаметр больше нуля.</div>';
+      return;
+    }
+    const rec = recommendedFor(m, opKey, 'carbide');
+    const nRaw = 1000 * rec.vc / (Math.PI * d);
+    const nNear = nearestSpeed(nRaw);
+    const vf = nNear * rec.feed;
+    $('#qRes').innerHTML = `
+      <div class="qf-row"><span>Расчётные обороты</span><b>${fmt(nRaw, 0)} об/мин</b></div>
+      <div class="qf-row"><span>Ближайшие на станке</span><b>${fmt(nNear, nNear % 1 ? 1 : 0)} об/мин</b></div>
+      <div class="qf-row"><span>Подача</span><b>${fmt(rec.feed, 2)} мм/об</b></div>
+      <div class="qf-row"><span>Скорость Vc</span><b>${rec.vc} м/мин</b></div>
+      <div class="qf-note">${esc(m.name)} · ${OPERATIONS[opKey].name.toLowerCase()} · твёрдый сплав<br>Минутная подача ≈ ${fmt(vf, 0)} мм/мин</div>`;
+  };
+  material.addEventListener('change', calc);
+  operation.addEventListener('change', calc);
+  diameter.addEventListener('input', calc);
+  calc();
+}
+
+</script>
+<script>
+'use strict';
+
+/* ============================================================
+   Режимы резания
+   ============================================================ */
+
+function renderModes() {
+  return `
+  <div class="page-head">
+    <div>
+      <span class="eyebrow">Расчёт</span>
+      <h2>Режимы резания</h2>
+      <p>Подберите обороты, подачу и глубину по марке металла и инструменту. Расчёт учитывает диаметр, Vc и удельную силу резания.</p>
+    </div>
+    <div class="chips no-print">
+      <a class="btn btn-sm" href="#materials">${icon('materials')} Металлы</a>
+      <a class="btn btn-sm" href="#tools">${icon('tools')} Инструмент</a>
+    </div>
+  </div>
+
+  <div class="calc-layout wide">
+    <div class="card">
+      <h3>Исходные данные</h3>
+      <div class="form-grid">
+        <div class="field span-2">
+          <label for="mMat">Материал</label>
+          <select id="mMat" class="select">${materialOptions('40xl')}</select>
+        </div>
+        <div class="field">
+          <label for="mOp">Операция</label>
+          <select id="mOp" class="select">
+            <option value="rough">Черновая</option>
+            <option value="semi" selected>Получистовая</option>
+            <option value="finish">Чистовая</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="mTool">Инструмент</label>
+          <select id="mTool" class="select">
+            <option value="carbide" selected>Твёрдый сплав</option>
+            <option value="hss">Быстрорез HSS</option>
+            <option value="ceramic">Керамика</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="mD">Диаметр обработки, мм</label>
+          <input id="mD" class="input mono" type="number" min="1" step="0.1" value="80">
+        </div>
+        <div class="field">
+          <label for="mVc">Скорость резания Vc, м/мин</label>
+          <input id="mVc" class="input mono" type="number" min="1" step="1" value="130">
+        </div>
+        <div class="field">
+          <label for="mF">Подача f, мм/об</label>
+          <input id="mF" class="input mono" type="number" min="0.01" step="0.01" value="0.24">
+        </div>
+        <div class="field">
+          <label for="mAp">Глубина ap, мм</label>
+          <input id="mAp" class="input mono" type="number" min="0.1" step="0.1" value="1.2">
+        </div>
+        <div class="field">
+          <label for="mL">Длина обработки L, мм</label>
+          <input id="mL" class="input mono" type="number" min="0" step="1" value="100">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-sm" id="mReset" type="button">Сбросить</button>
+        <span class="field-hint">Vc, f и ap подставляются по материалу — их можно править.</span>
+      </div>
+      <div id="mWarn" style="margin-top:12px"></div>
+    </div>
+
+    <div class="result-panel">
+      <div class="result-hero">
+        <div class="rh-label">Обороты шпинделя на станке</div>
+        <div class="rh-value"><span id="mNear">—</span> <span class="rh-unit">об/мин</span></div>
+        <div class="rh-note" id="mSpeedHint">Введите данные для расчёта</div>
+      </div>
+      <div class="result-grid">
+        <div class="result-item"><span>Расчётные n</span><b id="mN">—</b></div>
+        <div class="result-item"><span>Vc фактическая</span><b id="mVcAct">—</b></div>
+        <div class="result-item"><span>Подача минутная</span><b id="mVf">—</b></div>
+        <div class="result-item"><span>Мощность резания</span><b id="mP">—</b></div>
+        <div class="result-item"><span>Съём металла</span><b id="mQ">—</b></div>
+        <div class="result-item"><span>Время на проход</span><b id="mT">—</b></div>
+      </div>
+      <div class="card flat">
+        <h3>Что учесть</h3>
+        <p id="mNote" class="muted small"></p>
+        <div id="mApRec" class="small dim"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:16px">
+    <div class="card">
+      <h3>Примеры по диаметрам</h3>
+      <p class="table-caption">При текущих Vc и подаче. Обороты всегда зависят от диаметра — чем больше Ø, тем меньше n.</p>
+      <div id="mExamples"></div>
+    </div>
+    <div class="card">
+      <h3>Ряд скоростей станка</h3>
+      <p class="table-caption">Типовой ряд токарного станка. На вашем станке значения могут отличаться — сверяйтесь с таблицей на передней бабке.</p>
+      <div class="chips">
+        ${MACHINE_SPEEDS.map((speed) => `<span class="badge gray mono">${String(speed).replace('.', ',')}</span>`).join('')}
+      </div>
+      <div class="divider"></div>
+      <p class="small dim" style="margin:0">Если расчётное значение попадает между ступенями, берите ближайшее меньшее для черновой и ближайшее большее для чистовой — но следите за стойкостью инструмента.</p>
+    </div>
+  </div>`;
+}
+
+function initModes() {
+  const matSel = $('#mMat');
+  const opSel = $('#mOp');
+  const toolSel = $('#mTool');
+  if (!matSel || !opSel || !toolSel) return;
+
+  let prefilled = false;
+  try {
+    const wanted = sessionStorage.getItem('turner:mat');
+    if (wanted && MATERIALS.some((m) => m.id === wanted)) {
+      matSel.value = wanted;
+      prefilled = true;
+    }
+    sessionStorage.removeItem('turner:mat');
+  } catch { /* ignore */ }
+
+  const applyDefaults = () => {
+    const material = materialById(matSel.value);
+    const rec = recommendedFor(material, opSel.value, toolSel.value);
+    $('#mVc').value = rec.vc;
+    $('#mF').value = rec.feed;
+    $('#mAp').value = rec.ap;
+    calcModes();
+  };
+
+  matSel.addEventListener('change', applyDefaults);
+  opSel.addEventListener('change', applyDefaults);
+  toolSel.addEventListener('change', applyDefaults);
+  ['mVc', 'mF', 'mAp', 'mD', 'mL'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', calcModes);
+  });
+  $('#mReset').addEventListener('click', () => {
+    matSel.value = '40xl';
+    opSel.value = 'semi';
+    toolSel.value = 'carbide';
+    $('#mD').value = 80;
+    $('#mL').value = 100;
+    applyDefaults();
+  });
+
+  applyDefaults();
+  if (prefilled) calcModes();
+}
+
+function calcModes() {
+  const matSel = $('#mMat');
+  if (!matSel) return;
+
+  const material = materialById(matSel.value);
+  const opKey = $('#mOp').value;
+  const toolKey = $('#mTool').value;
+  const op = OPERATIONS[opKey];
+  const tool = TOOL_MATERIALS[toolKey];
+  const d = num($('#mD'));
+  const vc = num($('#mVc'));
+  const feed = num($('#mF'));
+  const ap = num($('#mAp'));
+  const length = num($('#mL'));
+
+  if (!(d > 0) || !(vc > 0) || !(feed > 0) || !(ap > 0)) {
+    ['mN', 'mVcAct', 'mVf', 'mP', 'mQ', 'mT'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '—';
+    });
+    return;
+  }
+
+  const nRaw = 1000 * vc / (Math.PI * d);
+  const nNear = nearestSpeed(nRaw);
+  const nLow = lowerSpeed(nRaw);
+  const vcActual = Math.PI * d * nNear / 1000;
+  const vf = nNear * feed;
+  const power = ap * feed * vcActual * material.kc / 60000 / 0.8;
+  const removal = vcActual * feed * ap;
+  const time = length > 0 ? length / (nNear * feed) : 0;
+  const deviation = ((nNear - nRaw) / nRaw) * 100;
+
+  const set = (id, html) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  };
+
+  set('mNear', fmt(nNear, nNear % 1 ? 1 : 0));
+  set('mSpeedHint', `Расчёт ${fmt(nRaw, 0)} об/мин → ближайшее ${fmt(nNear, nNear % 1 ? 1 : 0)}, меньшее ${fmt(nLow, nLow % 1 ? 1 : 0)} · отклонение ${fmt(deviation, 1)}%`);
+  set('mN', `${fmt(nRaw, 0)} <small>об/мин</small>`);
+  set('mVcAct', `${fmt(vcActual, 0)} <small>м/мин</small>`);
+  set('mVf', `${fmt(vf, 0)} <small>мм/мин</small>`);
+  set('mP', `${fmt(power, 2)} <small>кВт</small>`);
+  set('mQ', `${fmt(removal, 1)} <small>см³/мин</small>`);
+  set('mT', time ? formatTime(time) : '—');
+
+  const note = document.getElementById('mNote');
+  if (note) {
+    note.innerHTML = `${esc(material.note)}<br><span class="dim">${esc(tool.note)}</span>`;
+  }
+  const apRec = document.getElementById('mApRec');
+  if (apRec) {
+    apRec.innerHTML = `Рекомендуемая глубина: <b class="mono">${fmt(Math.min(op.ap, material.ap[1]), 1)} мм</b> · диапазон материала: <b class="mono">${material.ap[0]}–${material.ap[1]} мм</b> · сила резания учтена по kc ≈ ${material.kc} Н/мм².`;
+  }
+
+  const warnings = [];
+  if (nRaw > MACHINE_SPEEDS[MACHINE_SPEEDS.length - 1]) {
+    warnings.push(`Расчётные обороты ${fmt(nRaw, 0)} об/мин выше типового ряда. Проверьте патрон, зажим и максимум станка.`);
+  }
+  if (power > 7.5) {
+    warnings.push(`Расчётная мощность ${fmt(power, 2)} кВт. Проверьте мощность главного привода и жёсткость системы.`);
+  }
+  if (material.mach >= 4) {
+    warnings.push('Трудный материал: снижайте Vc, работайте без остановок в резе и с обильной СОЖ.');
+  }
+  if (feed > material.feed[1] * 1.4) {
+    warnings.push('Подача заметно выше справочной для этого материала — возможны вибрации и плохая стружка.');
+  }
+  const warn = document.getElementById('mWarn');
+  if (warn) {
+    warn.innerHTML = warnings.length
+      ? `<div class="warn-box">${icon('warning')}<div>${warnings.join('<br>')}</div></div>`
+      : `<div class="ok-box">${icon('check')}<div>Режим в пределах справочных значений. Проверьте стружку и нагрев на первом проходе.</div></div>`;
+  }
+
+  const examples = document.getElementById('mExamples');
+  if (examples) {
+    const rows = [30, 50, 80, 120].map((diameter) => {
+      const nCalc = 1000 * vc / (Math.PI * diameter);
+      const nSet = nearestSpeed(nCalc);
+      return `<tr>
+        <td class="num">${diameter}</td>
+        <td class="num">${fmt(nCalc, 0)}</td>
+        <td class="num accent">${fmt(nSet, nSet % 1 ? 1 : 0)}</td>
+        <td class="num">${fmt(nSet * feed, 0)}</td>
+      </tr>`;
+    }).join('');
+    examples.innerHTML = `
+      <table class="mini-table">
+        <thead><tr><th>Ø, мм</th><th style="text-align:right">n расч.</th><th style="text-align:right">на станке</th><th style="text-align:right">Vf, мм/мин</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <p class="small dim" style="margin:10px 0 0">Например, для Ø80 при Vc ${fmt(vc, 0)} м/мин получается ${fmt(1000 * vc / (Math.PI * 80), 0)} об/мин — на станке ставим ${fmt(nearestSpeed(1000 * vc / (Math.PI * 80)), 0)}.</p>`;
+  }
+}
+
+</script>
+<script>
+'use strict';
+
+/* ============================================================
+   Допуски и посадки ISO 286
+   ============================================================ */
+
+function rangeIndex(d) {
+  if (!(d > 0)) return -1;
+  for (let i = 0; i < IT_RANGES.length; i += 1) {
+    if (d <= IT_RANGES[i].max) return i;
+  }
+  return -1;
+}
+
+function fieldLimits(d, code) {
+  const match = /^([A-Za-z]{1,2})(\d{1,2})$/.exec(String(code).trim());
+  if (!match) return null;
+  const letter = match[1];
+  const grade = Number(match[2]);
+  const values = IT_VALUES[grade];
+  const index = rangeIndex(d);
+  if (!values || index < 0) return null;
+  const it = values[index];
+  const isHole = letter[0] === letter[0].toUpperCase();
+
+  if (isHole) {
+    if (letter === 'H') return { code, upper: it, lower: 0, it, letter };
+    if (letter === 'Js') {
+      const half = it / 2;
+      return { code, upper: half, lower: -half, it, letter };
+    }
+    const ei = HOLE_DEV[letter] ? HOLE_DEV[letter][index] : undefined;
+    if (ei === undefined) return null;
+    return { code, upper: ei + it, lower: ei, it, letter };
+  }
+
+  if (letter === 'h') return { code, upper: 0, lower: -it, it, letter };
+  if (letter === 'js') {
+    const half = it / 2;
+    return { code, upper: half, lower: -half, it, letter };
+  }
+  const dev = SHAFT_DEV[letter] ? SHAFT_DEV[letter][index] : undefined;
+  if (dev === undefined) return null;
+  if (['d', 'e', 'f', 'g'].includes(letter)) {
+    return { code, upper: dev, lower: dev - it, it, letter };
+  }
+  return { code, upper: dev + it, lower: dev, it, letter };
+}
+
+function mic(value) {
+  if (!Number.isFinite(value)) return '—';
+  const sign = value > 0 ? '+' : value < 0 ? '−' : '';
+  const abs = Math.abs(value);
+  const text = Number.isInteger(abs) ? String(abs) : abs.toFixed(1).replace('.', ',');
+  return sign + text;
+}
+
+function mm(value) {
+  if (!Number.isFinite(value)) return '—';
+  return value.toFixed(3).replace('.', ',');
+}
+
+function holeCodes(selected) {
+  const codes = [];
+  for (let grade = 5; grade <= 14; grade += 1) codes.push('H' + grade);
+  ['G6', 'G7', 'G8', 'G9', 'F7', 'F8', 'F9', 'E8', 'E9', 'Js6', 'Js7', 'Js8'].forEach((code) => codes.push(code));
+  return codes.map((code) => `<option${code === selected ? ' selected' : ''}>${code}</option>`).join('');
+}
+
+function shaftCodes(selected) {
+  const codes = [];
+  for (let grade = 5; grade <= 14; grade += 1) codes.push('h' + grade);
+  ['g6', 'g7', 'f7', 'f8', 'e8', 'e9', 'd9', 'js6', 'k6', 'm6', 'n6', 'p6'].forEach((code) => codes.push(code));
+  return codes.map((code) => `<option${code === selected ? ' selected' : ''}>${code}</option>`).join('');
+}
+
+function itReferenceTable() {
+  const head = `<tr><th>Размер, мм</th>${IT_GRADES.map((grade) => `<th class="num">IT${grade}</th>`).join('')}</tr>`;
+  const body = IT_RANGES.map((range, index) => (
+    `<tr><td>${range.label}</td>${IT_GRADES.map((grade) => `<td class="num">${IT_VALUES[grade][index]}</td>`).join('')}</tr>`
+  )).join('');
+  return `<div class="table-wrap"><table class="data"><thead>${head}</thead><tbody>${body}</tbody></table></div>`;
+}
+
+function fitsReferenceTable() {
+  const rows = FITS_REF.map((item) => {
+    const cls = item.type === 'Зазор' ? 'green' : item.type === 'Натяг' ? 'red' : 'amber';
+    return `<tr><td class="strong mono">${item.fit}</td><td><span class="badge ${cls}">${item.type}</span></td><td class="wrap">${item.desc}</td></tr>`;
+  }).join('');
+  return `<div class="table-wrap short"><table class="data"><thead><tr><th>Посадка</th><th>Тип</th><th>Где применяют</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function roughnessTable() {
+  const rows = ROUGHNESS.map((item) => (
+    `<tr><td class="mono">${item.it}</td><td class="mono">${item.ra}</td><td class="wrap">${item.method}</td></tr>`
+  )).join('');
+  return `<div class="table-wrap short"><table class="data"><thead><tr><th>Квалитет</th><th>Шероховатость</th><th>Как получить</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function renderTolerances() {
+  return `
+  <div class="page-head">
+    <div>
+      <span class="eyebrow">ISO 286</span>
+      <h2>Допуски и посадки</h2>
+      <p>Предельные размеры отверстия и вала, зазоры и натяги. Стандартные поля допусков или свои отклонения в микрометрах.</p>
+    </div>
+    <div class="chips no-print">
+      <a class="btn btn-sm" href="#threads">${icon('threads')} Резьба</a>
+      <a class="btn btn-sm" href="#formulas">${icon('formulas')} Формулы</a>
+    </div>
+  </div>
+
+  <div class="calc-layout">
+    <div class="card">
+      <h3>Посадка</h3>
+      <div class="form-grid">
+        <div class="field span-2">
+          <label for="tD">Номинальный размер, мм</label>
+          <input id="tD" class="input mono" type="number" min="0.1" max="500" step="0.1" value="50">
+          <span class="field-hint">Диапазон таблиц: до 500 мм.</span>
+        </div>
+        <div class="field span-2">
+          <label for="tMode">Режим расчёта</label>
+          <select id="tMode" class="select">
+            <option value="std" selected>Стандартные поля допусков</option>
+            <option value="custom">Свои отклонения, мкм</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-row" id="tStd" style="margin-top:12px">
+        <div class="field">
+          <label for="tHole">Отверстие</label>
+          <select id="tHole" class="select">${holeCodes('H7')}</select>
+        </div>
+        <div class="field">
+          <label for="tShaft">Вал</label>
+          <select id="tShaft" class="select">${shaftCodes('h6')}</select>
+        </div>
+      </div>
+
+      <div class="custom-fields field-row" id="tCustom" style="margin-top:12px">
+        <div class="field"><label for="tES">ES отверстия, мкм</label><input id="tES" class="input mono" type="number" step="1" value="25"></div>
+        <div class="field"><label for="tEI">EI отверстия, мкм</label><input id="tEI" class="input mono" type="number" step="1" value="0"></div>
+        <div class="field"><label for="tEs">es вала, мкм</label><input id="tEs" class="input mono" type="number" step="1" value="0"></div>
+        <div class="field"><label for="tEi">ei вала, мкм</label><input id="tEi" class="input mono" type="number" step="1" value="-16"></div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-sm" type="button" id="tReset">Сбросить</button>
+        <span class="field-hint">ES/EI — верхнее/нижнее отклонение отверстия; es/ei — вала.</span>
+      </div>
+    </div>
+
+    <div class="result-panel">
+      <div class="card flat">
+        <div class="tol-out">
+          <div class="tol-card" id="tHoleOut"></div>
+          <div class="tol-card" id="tShaftOut"></div>
+        </div>
+        <div id="tFit" style="margin-top:12px"></div>
+        <div id="tItRow" style="margin-top:12px"></div>
+      </div>
+      <div class="card flat">
+        <h3>Как читать результат</h3>
+        <p class="small muted" style="margin:0">Зазор — вал меньше отверстия, соединение подвижное. Натяг — вал больше отверстия, соединение неподвижное. Переходная посадка допускает и небольшой зазор, и небольшой натяг. Все отклонения показаны в микрометрах (1 мкм = 0,001 мм).</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="card-head">
+      <h3>Квалитеты IT5–IT14</h3>
+      <span class="badge gray">допуск в мкм</span>
+    </div>
+    <p class="table-caption">Чем меньше номер квалитета, тем точнее размер. Для точения реально IT7–IT9, тонкое точение — IT6–IT7, шлифование — IT5–IT6.</p>
+    ${itReferenceTable()}
+  </div>
+
+  <div class="grid-2" style="margin-top:16px">
+    <div class="card">
+      <h3>Частые посадки</h3>
+      <p class="table-caption">Справочник по применению. Расчёт конкретных предельных размеров — в калькуляторе выше.</p>
+      ${fitsReferenceTable()}
+    </div>
+    <div class="card">
+      <h3>Квалитет и шероховатость</h3>
+      <p class="table-caption">Ориентировочная связь допуска и достижимой шероховатости при точении.</p>
+      ${roughnessTable()}
+    </div>
+  </div>`;
+}
+
+function initTolerances() {
+  const mode = $('#tMode');
+  const std = $('#tStd');
+  const custom = $('#tCustom');
+  if (!mode || !std || !custom) return;
+
+  const syncMode = () => {
+    const isCustom = mode.value === 'custom';
+    std.style.display = isCustom ? 'none' : 'grid';
+    custom.classList.toggle('show', isCustom);
+    calcTolerances();
+  };
+
+  ['tD', 'tHole', 'tShaft', 'tES', 'tEI', 'tEs', 'tEi'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcTolerances);
+      el.addEventListener('change', calcTolerances);
+    }
+  });
+  mode.addEventListener('change', syncMode);
+
+  $('#tReset').addEventListener('click', () => {
+    $('#tD').value = 50;
+    mode.value = 'std';
+    $('#tHole').value = 'H7';
+    $('#tShaft').value = 'h6';
+    $('#tES').value = 25;
+    $('#tEI').value = 0;
+    $('#tEs').value = 0;
+    $('#tEi').value = -16;
+    syncMode();
+  });
+
+  syncMode();
+}
+
+function calcTolerances() {
+  const dInput = $('#tD');
+  if (!dInput) return;
+  const d = num(dInput);
+  const mode = $('#tMode').value;
+
+  const holeOut = $('#tHoleOut');
+  const shaftOut = $('#tShaftOut');
+  const fitOut = $('#tFit');
+  const itRow = $('#tItRow');
+
+  if (!(d > 0) || d > 500) {
+    holeOut.innerHTML = '<h4>Отверстие</h4><div class="big">—</div><div class="limits">Укажите размер от 0,1 до 500 мм.</div>';
+    shaftOut.innerHTML = '<h4>Вал</h4><div class="big">—</div><div class="limits">Укажите размер от 0,1 до 500 мм.</div>';
+    fitOut.innerHTML = '<div class="warn-box">' + icon('warning') + '<div>Номинальный размер должен быть в диапазоне 0,1–500 мм.</div></div>';
+    itRow.innerHTML = '';
+    return;
+  }
+
+  const index = rangeIndex(d);
+  const range = IT_RANGES[index];
+
+  let hole;
+  let shaft;
+  if (mode === 'custom') {
+    const es = num($('#tES'));
+    const ei = num($('#tEI'));
+    const esShaft = num($('#tEs'));
+    const eiShaft = num($('#tEi'));
+    if (![es, ei, esShaft, eiShaft].every(Number.isFinite)) {
+      fitOut.innerHTML = '<div class="warn-box">' + icon('warning') + '<div>Заполните все четыре отклонения в микрометрах.</div></div>';
+      return;
+    }
+    hole = { code: 'свои', upper: es, lower: ei, it: es - ei };
+    shaft = { code: 'свои', upper: esShaft, lower: eiShaft, it: esShaft - eiShaft };
+  } else {
+    hole = fieldLimits(d, $('#tHole').value);
+    shaft = fieldLimits(d, $('#tShaft').value);
+    if (!hole || !shaft) {
+      fitOut.innerHTML = '<div class="warn-box">' + icon('warning') + '<div>Для этого размера поле допуска не найдено.</div></div>';
+      return;
+    }
+  }
+
+  const holeMax = d + hole.upper / 1000;
+  const holeMin = d + hole.lower / 1000;
+  const shaftMax = d + shaft.upper / 1000;
+  const shaftMin = d + shaft.lower / 1000;
+
+  holeOut.innerHTML = `
+    <h4>Отверстие <span class="badge cyan">${esc(hole.code)}</span></h4>
+    <div class="big">Ø${fmt(d, 1)} ${mic(hole.upper)} / ${mic(hole.lower)}</div>
+    <div class="limits">Dmax <b>${mm(holeMax)}</b> мм · Dmin <b>${mm(holeMin)}</b> мм<br>Допуск <b>${fmt(hole.it, Number.isInteger(hole.it) ? 0 : 1)} мкм</b></div>`;
+
+  shaftOut.innerHTML = `
+    <h4>Вал <span class="badge amber">${esc(shaft.code)}</span></h4>
+    <div class="big">Ø${fmt(d, 1)} ${mic(shaft.upper)} / ${mic(shaft.lower)}</div>
+    <div class="limits">dmax <b>${mm(shaftMax)}</b> мм · dmin <b>${mm(shaftMin)}</b> мм<br>Допуск <b>${fmt(shaft.it, Number.isInteger(shaft.it) ? 0 : 1)} мкм</b></div>`;
+
+  const maxClearance = hole.upper - shaft.lower;
+  const minClearance = hole.lower - shaft.upper;
+  let type;
+  let cls;
+  let values;
+  let tip;
+
+  if (minClearance >= 0) {
+    type = 'Зазор';
+    cls = 'green';
+    values = `Smax = ${mic(maxClearance)} мкм · Smin = ${mic(minClearance)} мкм · средний ${mic((maxClearance + minClearance) / 2)} мкм`;
+    tip = 'Вал гарантированно меньше отверстия. Соединение подвижное или свободно собирается.';
+  } else if (maxClearance <= 0) {
+    type = 'Натяг';
+    cls = 'red';
+    values = `Nmax = ${mic(-minClearance)} мкм · Nmin = ${mic(-maxClearance)} мкм`;
+    tip = 'Вал гарантированно больше отверстия. Соединение неподвижное, нужна запрессовка или нагрев.';
+  } else {
+    type = 'Переходная';
+    cls = 'amber';
+    values = `Smax = ${mic(maxClearance)} мкм · Nmax = ${mic(-minClearance)} мкм`;
+    tip = 'Возможен небольшой зазор или небольшой натяг. Соединение центрирует, но требует фиксации от проворота.';
+  }
+
+  fitOut.innerHTML = `
+    <div class="fit-banner">
+      <div class="fb-type"><span class="badge ${cls}">${type}</span><b>${hole.code}/${shaft.code}</b></div>
+      <div class="fb-values">${values}</div>
+      <p class="small dim" style="margin:8px 0 0">${tip}</p>
+    </div>`;
+
+  itRow.innerHTML = `
+    <div class="small dim" style="margin-bottom:7px">Для Ø${fmt(d, 1)} мм (${range.label}):</div>
+    <div class="chips">
+      ${IT_GRADES.map((grade) => `<span class="badge gray">IT${grade} · ${IT_VALUES[grade][index]} мкм</span>`).join('')}
+    </div>`;
+}
+
+</script>
+<script>
+'use strict';
+
+/* ============================================================
+   Резьба, метчики и плашки
+   ============================================================ */
+
+function threadItems(type) {
+  if (type === 'pipe') return PIPE_THREADS;
+  if (type === 'trap') return TRAP_THREADS;
+  return METRIC_THREADS;
+}
+
+function threadOptions(type, selectedIndex = 0) {
+  return threadItems(type).map((item, index) => {
+    let label;
+    if (type === 'metric') label = `M${item.d}×${String(item.p).replace('.', ',')}`;
+    else if (type === 'pipe') label = `${item.name} · наруж. Ø ${String(item.d).replace('.', ',')}`;
+    else label = item.name;
+    return `<option value="${index}"${index === selectedIndex ? ' selected' : ''}>${label}</option>`;
+  }).join('');
+}
+
+function threadLubeFor(material) {
+  if (material.group === 'Нержавеющие') return THREAD_LUBE[1];
+  if (material.group === 'Чугуны') return THREAD_LUBE[2];
+  if (material.group === 'Цветные') {
+    return (material.id === 'ls59' || material.id === 'bro10') ? THREAD_LUBE[4] : THREAD_LUBE[3];
+  }
+  if (material.group === 'Титановые' || material.group === 'Жаропрочные') return THREAD_LUBE[5];
+  return THREAD_LUBE[0];
+}
+
+function metricThreadTable() {
+  const rows = METRIC_THREADS.map((item) => {
+    const blank = r2(item.d - 0.1 * item.p);
+    const d2 = r2(item.d - 0.6495 * item.p);
+    const d3 = r2(item.d - 1.2269 * item.p);
+    return `<tr>
+      <td class="strong">M${item.d}×${String(item.p).replace('.', ',')}</td>
+      <td class="num">${String(item.p).replace('.', ',')}</td>
+      <td class="num accent">${String(item.drill).replace('.', ',')}</td>
+      <td class="num">${String(blank).replace('.', ',')}</td>
+      <td class="num">${String(d2).replace('.', ',')}</td>
+      <td class="num">${String(d3).replace('.', ',')}</td>
+    </tr>`;
+  }).join('');
+  return `<div class="table-wrap"><table class="data">
+    <thead><tr><th>Резьба</th><th class="num">Шаг P</th><th class="num">Сверло</th><th class="num">Заготовка под плашку</th><th class="num">d2</th><th class="num">d3</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+
+function pipeThreadTable() {
+  const rows = PIPE_THREADS.map((item) => `<tr>
+    <td class="strong">${item.name}</td>
+    <td class="num">${String(item.d).replace('.', ',')}</td>
+    <td class="num">${String(item.p).replace('.', ',')}</td>
+    <td class="num">${item.tpi}</td>
+    <td class="num accent">${String(item.drill).replace('.', ',')}</td>
+  </tr>`).join('');
+  return `<div class="table-wrap short"><table class="data">
+    <thead><tr><th>G</th><th class="num">Наруж. Ø</th><th class="num">Шаг</th><th class="num">Ниток/дюйм</th><th class="num">Сверло</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+
+function trapThreadTable() {
+  const rows = TRAP_THREADS.map((item) => `<tr>
+    <td class="strong">${item.name}</td>
+    <td class="num">${String(item.p).replace('.', ',')}</td>
+    <td class="num accent">${String(item.drill).replace('.', ',')}</td>
+    <td class="num">${String(r2(item.d - 0.5 * item.p)).replace('.', ',')}</td>
+  </tr>`).join('');
+  return `<div class="table-wrap short"><table class="data">
+    <thead><tr><th>Tr</th><th class="num">Шаг</th><th class="num">Сверло</th><th class="num">d2</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+
+function tapTypesTable() {
+  const rows = TAP_TYPES.map((item) => `<tr>
+    <td class="wrap"><b>${item.name}</b></td>
+    <td class="wrap">${item.use}</td>
+    <td class="wrap">${item.note}</td>
+  </tr>`).join('');
+  return `<div class="table-wrap"><table class="data">
+    <thead><tr><th>Инструмент</th><th>Для чего</th><th>Особенности</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+
+function threadLubeTable() {
+  const rows = THREAD_LUBE.map((item) => `<tr>
+    <td class="wrap">${item.group}</td>
+    <td class="wrap">${item.lube}</td>
+    <td class="wrap">${item.note}</td>
+  </tr>`).join('');
+  return `<div class="table-wrap short"><table class="data">
+    <thead><tr><th>Материал</th><th>СОЖ</th><th>Примечание</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+
+function renderThreads() {
+  return `
+  <div class="page-head">
+    <div>
+      <span class="eyebrow">Метрика · G · Tr</span>
+      <h2>Резьба и метчики</h2>
+      <p>Сверло под резьбу, диаметр заготовки под плашку, размеры профиля и рекомендации по инструменту для конкретного материала.</p>
+    </div>
+    <div class="chips no-print">
+      <a class="btn btn-sm" href="#modes">${icon('modes')} Режимы</a>
+      <a class="btn btn-sm" href="#tools">${icon('tools')} СОЖ</a>
+    </div>
+  </div>
+
+  <div class="calc-layout wide">
+    <div class="card">
+      <h3>Параметры резьбы</h3>
+      <div class="form-grid">
+        <div class="field span-2">
+          <label for="thType">Тип резьбы</label>
+          <select id="thType" class="select">
+            <option value="metric" selected>Метрическая M</option>
+            <option value="pipe">Трубная G</option>
+            <option value="trap">Трапецеидальная Tr</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="thSize">Размер</label>
+          <select id="thSize" class="select">${threadOptions('metric', METRIC_THREADS.findIndex((t) => t.d === 10))}</select>
+        </div>
+        <div class="field">
+          <label for="thPitch">Шаг, мм</label>
+          <input id="thPitch" class="input mono" type="number" min="0.1" step="0.05" value="1.5" list="thPitchList">
+          <datalist id="thPitchList"></datalist>
+        </div>
+        <div class="field">
+          <label for="thDir">Резьба</label>
+          <select id="thDir" class="select">
+            <option value="in" selected>Внутренняя — метчик</option>
+            <option value="out">Наружная — плашка</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="thHole">Отверстие</label>
+          <select id="thHole" class="select">
+            <option value="through" selected>Сквозное</option>
+            <option value="blind">Глухое</option>
+          </select>
+        </div>
+        <div class="field span-2">
+          <label for="thMat">Материал</label>
+          <select id="thMat" class="select">${materialOptions('40xl')}</select>
+        </div>
+      </div>
+      <div class="form-actions">
+        <span class="field-hint">Сверло под метчик: d − P. Для вязких материалов можно на 0,1 мм больше.</span>
+      </div>
+    </div>
+
+    <div class="result-panel">
+      <div class="card flat">
+        <div class="card-head">
+          <h3>Результат</h3>
+          <span class="badge amber" id="thLabel">M10×1,5</span>
+        </div>
+        <div class="thread-result" id="thOut"></div>
+        <div id="thDims" style="margin-top:12px"></div>
+      </div>
+      <div id="thAdvice"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="card-head">
+      <h3>Метрическая резьба: свёрла и размеры</h3>
+      <span class="badge gray">мм</span>
+    </div>
+    <p class="table-caption">Стандартный крупный шаг. Сверло — типовое под 75–80% профиля. Для глубоких и вязких отверстий добавляйте 0,05–0,1 мм и чаще выводите метчик.</p>
+    ${metricThreadTable()}
+  </div>
+
+  <div class="grid-2" style="margin-top:16px">
+    <div class="card">
+      <h3>Трубная резьба G</h3>
+      <p class="table-caption">Размер G — условный проход, наружный диаметр резьбы больше. Сверло — под внутреннюю резьбу.</p>
+      ${pipeThreadTable()}
+    </div>
+    <div class="card">
+      <h3>Трапецеидальная Tr</h3>
+      <p class="table-caption">Угол профиля 30°. Сверло под внутреннюю резьбу, значения ориентировочные.</p>
+      ${trapThreadTable()}
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3>Какой метчик или плашка нужны</h3>
+    <p class="table-caption">Для ручной работы берите комплект из 2–3 метчиков, для станка — машинный с подходящим отводом стружки.</p>
+    ${tapTypesTable()}
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3>СОЖ для резьбы</h3>
+    ${threadLubeTable()}
+  </div>`;
+}
+
+function initThreads() {
+  const typeSel = $('#thType');
+  const sizeSel = $('#thSize');
+  const pitch = $('#thPitch');
+  const dirSel = $('#thDir');
+  const holeSel = $('#thHole');
+  const matSel = $('#thMat');
+  if (!typeSel || !sizeSel || !pitch) return;
+
+  const syncPitch = () => {
+    const type = typeSel.value;
+    const items = threadItems(type);
+    const item = items[Number(sizeSel.value)] || items[0];
+    if (!item) return;
+    const list = $('#thPitchList');
+    if (type === 'metric') {
+      pitch.disabled = false;
+      pitch.value = item.p;
+      if (list) {
+        list.innerHTML = [item.p, ...(item.fine || [])]
+          .map((value) => `<option value="${String(value).replace('.', '.')}"></option>`)
+          .join('');
+      }
+    } else {
+      pitch.disabled = true;
+      pitch.value = item.p;
+      if (list) list.innerHTML = '';
+    }
+    calcThreads();
+  };
+
+  const rebuildSizes = (defaultIndex = 0) => {
+    const type = typeSel.value;
+    const items = threadItems(type);
+    let index = defaultIndex;
+    if (type === 'metric' && defaultIndex === 0) {
+      const found = items.findIndex((item) => item.d === 10);
+      if (found >= 0) index = found;
+    }
+    sizeSel.innerHTML = threadOptions(type, index);
+    syncPitch();
+  };
+
+  typeSel.addEventListener('change', () => rebuildSizes(0));
+  sizeSel.addEventListener('change', syncPitch);
+  pitch.addEventListener('input', calcThreads);
+  dirSel.addEventListener('change', calcThreads);
+  holeSel.addEventListener('change', calcThreads);
+  matSel.addEventListener('change', calcThreads);
+
+  rebuildSizes(0);
+}
+
+function calcThreads() {
+  const typeSel = $('#thType');
+  if (!typeSel) return;
+  const type = typeSel.value;
+  const items = threadItems(type);
+  const item = items[Number($('#thSize').value)] || items[0];
+  const isInternal = $('#thDir').value === 'in';
+  const isBlind = $('#thHole').value === 'blind';
+  const material = materialById($('#thMat').value);
+  const pitchValue = type === 'metric' ? (num($('#thPitch')) || item.p) : item.p;
+
+  const d = item.d;
+  const p = pitchValue;
+  let label;
+  if (type === 'metric') label = `M${d}×${String(p).replace('.', ',')}`;
+  else if (type === 'pipe') label = item.name;
+  else label = item.name;
+
+  let drill;
+  if (type === 'metric') {
+    const coarse = Math.abs(p - item.p) < 1e-9;
+    drill = (coarse && item.drill) ? item.drill : r1(d - p);
+  } else {
+    drill = item.drill;
+  }
+
+  const d2 = type === 'trap' ? d - 0.5 * p : d - 0.6495 * p;
+  const minor = isInternal
+    ? (type === 'trap' ? d - p : d - 1.0825 * p)
+    : (type === 'trap' ? d - p : d - 1.2269 * p);
+  const height = isInternal
+    ? (type === 'trap' ? 0.5 * p : 0.5413 * p)
+    : (type === 'trap' ? 0.5 * p : 0.6134 * p);
+  const blank = r2(d - 0.1 * p);
+
+  $('#thLabel').textContent = label;
+  const drillLabel = isInternal ? 'Сверло под резьбу' : 'Заготовка под плашку';
+  const drillValue = isInternal ? drill : blank;
+  $('#thOut').innerHTML = `
+    <div class="thread-big"><span>${drillLabel}</span><b>${String(drillValue).replace('.', ',')}</b><small>мм</small></div>
+    <div class="thread-big"><span>Средний диаметр d2</span><b>${String(r2(d2)).replace('.', ',')}</b><small>мм</small></div>
+    <div class="thread-big"><span>${isInternal ? 'Диаметр отверстия D1' : 'Диаметр впадин d3'}</span><b>${String(r2(minor)).replace('.', ',')}</b><small>мм</small></div>
+    <div class="thread-big"><span>Высота профиля h</span><b>${String(r2(height)).replace('.', ',')}</b><small>мм</small></div>`;
+
+  $('#thDims').innerHTML = `
+    <table class="mini-table">
+      <tr><td>Обозначение</td><td class="num accent">${label}</td></tr>
+      <tr><td>Наружный диаметр d</td><td class="num">${String(d).replace('.', ',')} мм</td></tr>
+      <tr><td>Шаг P</td><td class="num">${String(p).replace('.', ',')} мм</td></tr>
+      <tr><td>Средний диаметр d2</td><td class="num">${String(r2(d2)).replace('.', ',')} мм</td></tr>
+      <tr><td>${isInternal ? 'Отверстие D1' : 'Внутренний d3'}</td><td class="num">${String(r2(minor)).replace('.', ',')} мм</td></tr>
+      <tr><td>${isInternal ? 'Сверло' : 'Заготовка'}</td><td class="num">${String(drillValue).replace('.', ',')} мм</td></tr>
+      <tr><td>Класс точности</td><td class="num">${type === 'metric' ? '6H / 6g' : type === 'pipe' ? 'класс A' : '7H / 7e'}</td></tr>
+    </table>`;
+
+  const lube = threadLubeFor(material);
+  let toolText;
+  if (isInternal) {
+    if (['Нержавеющие', 'Титановые', 'Жаропрочные'].includes(material.group)) {
+      toolText = 'Метчик HSS-E или HSS-Co с повышенной стойкостью. Для сквозного отверстия — с винтовым остроконечным забором, для глухого — с винтовыми канавками. Скорость снизьте на 30–50%.';
+    } else if (material.group === 'Чугуны') {
+      toolText = 'Метчик HSS с прямыми канавками. Работайте без СОЖ или с воздухом, регулярно выводите метчик и продувайте отверстие.';
+    } else if (material.group === 'Цветные') {
+      toolText = 'Острый метчик с большими канавками, полированная кромка. Для алюминия подойдёт метчик с винтовыми канавками, для латуни — с прямыми.';
+    } else {
+      toolText = 'Машинный метчик HSS: для сквозного отверстия — винтовой остроконечный забор, для глухого — винтовые канавки. Ручной вариант — комплект №1 + №2 (при необходимости №3).';
+    }
+  } else {
+    toolText = 'Круглая плашка (раздвижная — для регулировки) или машинный резьбонарезной патрон. Для серии и прочной резьбы используйте накатку, а не снятие стружки. Заготовку точите на 0,1·P меньше номинала.';
+  }
+
+  const holeText = isInternal
+    ? (isBlind
+      ? 'Глухое отверстие: сверло на 2–3 витка глубже резьбы, метчик с винтовыми канавками, регулярный вывод для удаления стружки. Не упирайте метчик в дно.'
+      : 'Сквозное отверстие: можно использовать метчик с винтовым остроконечным забором — стружка идёт вперёд и не забивает канавки.')
+    : 'Заготовка под плашку: снимите фаску 1,5–2 × 45°, диаметр — на 0,1·P меньше номинала. Обильно смазывайте и не перегревайте плашку.';
+
+  const speedNote = isInternal
+    ? `Ориентир по скорости метчика: ${material.group === 'Нержавеющие' || material.group === 'Титановые' ? '3–6' : material.group === 'Чугуны' ? '8–12' : material.group === 'Цветные' ? '12–20' : '5–10'} м/мин. Это примерно ${fmt(1000 * (material.group === 'Нержавеющие' || material.group === 'Титановые' ? 4.5 : material.group === 'Чугуны' ? 10 : material.group === 'Цветные' ? 16 : 7.5) / (Math.PI * d), 0)} об/мин для Ø${String(d).replace('.', ',')}.`
+    : 'Плашку ведите с небольшой подачей, периодически отводите назад на 1/4 оборота, чтобы ломать стружку.';
+
+  $('#thAdvice').innerHTML = `
+    <div class="thread-info">
+      <h4>${icon('threads')} Инструмент</h4>
+      <p>${toolText}</p>
+    </div>
+    <div class="thread-info">
+      <h4>${icon('info')} Отверстие и заготовка</h4>
+      <p>${holeText}</p>
+    </div>
+    <div class="thread-info">
+      <h4>${icon('check')} Скорость</h4>
+      <p>${speedNote}</p>
+    </div>
+    <div class="thread-info">
+      <h4>${icon('tools')} СОЖ: ${lube.lube}</h4>
+      <p>${lube.note}</p>
+    </div>`;
+}
+
+</script>
+<script>
+'use strict';
+
+/* ============================================================
+   Формулы и мини-калькуляторы
+   ============================================================ */
+
+function formulaField(id, label, value, step = 'any') {
+  return `<div class="field"><label for="${id}">${label}</label><input id="${id}" class="input mono" type="number" step="${step}" value="${value}"></div>`;
+}
+
+function renderFormulas() {
+  return `
+  <div class="page-head">
+    <div>
+      <span class="eyebrow">Мини-калькуляторы</span>
+      <h2>Формулы токаря</h2>
+      <p>Обороты, скорость, время, конус, шестигранник, масса заготовки и теоретическая шероховатость. Всё считается прямо в браузере.</p>
+    </div>
+    <div class="chips no-print">
+      <a class="btn btn-sm" href="#modes">${icon('modes')} Режимы</a>
+      <a class="btn btn-sm" href="#tolerances">${icon('tolerances')} Допуски</a>
+    </div>
+  </div>
+
+  <div class="formula-grid">
+    <div class="formula-card">
+      <h3>Обороты по скорости резания</h3>
+      <span class="formula">n = 1000 · Vc / (π · D)</span>
+      <div class="calc-row">
+        ${formulaField('fRpmVc', 'Vc, м/мин', 180, '1')}
+        ${formulaField('fRpmD', 'Диаметр D, мм', 50, '0.1')}
+      </div>
+      <div class="calc-out"><span>Обороты шпинделя</span><b id="fRpmOut">—</b></div>
+    </div>
+
+    <div class="formula-card">
+      <h3>Скорость по оборотам</h3>
+      <span class="formula">Vc = π · D · n / 1000</span>
+      <div class="calc-row">
+        ${formulaField('fVcN', 'Обороты n, об/мин', 800, '1')}
+        ${formulaField('fVcD', 'Диаметр D, мм', 50, '0.1')}
+      </div>
+      <div class="calc-out"><span>Скорость резания</span><b id="fVcOut">—</b></div>
+    </div>
+
+    <div class="formula-card">
+      <h3>Минутная подача и время</h3>
+      <span class="formula">Vf = n · f &nbsp;·&nbsp; T = L / Vf</span>
+      <div class="calc-row three">
+        ${formulaField('fFeedN', 'n, об/мин', 500, '1')}
+        ${formulaField('fFeedF', 'f, мм/об', 0.2, '0.01')}
+        ${formulaField('fFeedL', 'Длина L, мм', 100, '1')}
+      </div>
+      <div class="calc-out"><span>Минутная подача</span><b id="fFeedVf">—</b></div>
+      <div class="calc-out"><span>Время на проход</span><b id="fFeedTime">—</b></div>
+    </div>
+
+    <div class="formula-card">
+      <h3>Мощность резания</h3>
+      <span class="formula">Pc ≈ ap · f · Vc · kc / 60000</span>
+      <div class="calc-row">
+        ${formulaField('fPowAp', 'ap, мм', 2, '0.1')}
+        ${formulaField('fPowF', 'f, мм/об', 0.25, '0.01')}
+        ${formulaField('fPowVc', 'Vc, м/мин', 150, '1')}
+        ${formulaField('fPowKc', 'kc, Н/мм²', 2000, '10')}
+      </div>
+      <div class="calc-out"><span>Мощность на резание</span><b id="fPowOut">—</b></div>
+      <p class="small dim" style="margin:8px 0 0">kc: сталь ≈ 1800–2200, чугун ≈ 1100, алюминий ≈ 700, титан ≈ 2500 Н/мм². КПД станка здесь не учтён.</p>
+    </div>
+
+    <div class="formula-card">
+      <h3>Конус и конусность</h3>
+      <span class="formula">α = atan((D − d) / (2L))</span>
+      <div class="calc-row three">
+        ${formulaField('fConeD', 'Большой D, мм', 60, '0.1')}
+        ${formulaField('fConeD2', 'Малый d, мм', 50, '0.1')}
+        ${formulaField('fConeL', 'Длина L, мм', 100, '1')}
+      </div>
+      <div class="calc-out"><span>Угол при вершине 2α</span><b id="fConeOut">—</b></div>
+      <div class="calc-out"><span>Конусность</span><b id="fConeTaper">—</b></div>
+      <p class="small dim" style="margin:8px 0 0">Конусность 1:20 означает, что на 20 мм длины диаметр меняется на 1 мм.</p>
+    </div>
+
+    <div class="formula-card">
+      <h3>Шестигранник</h3>
+      <span class="formula">D = S / cos 30° = S / 0,866</span>
+      <div class="calc-row">
+        ${formulaField('fHexS', 'Размер под ключ S, мм', 24, '0.1')}
+        ${formulaField('fHexD', 'Наружный D, мм', 27.71, '0.1')}
+      </div>
+      <div class="calc-out"><span>Диаметр описанной окружности</span><b id="fHexOut">—</b></div>
+      <p class="small dim" style="margin:8px 0 0">Для фрезеровки шестигранника на токарном станке понадобится делительная головка или приводной инструмент.</p>
+    </div>
+
+    <div class="formula-card">
+      <h3>Масса круглой заготовки</h3>
+      <span class="formula">m = π/4 · D² · L · ρ / 10⁶</span>
+      <div class="calc-row three">
+        ${formulaField('fMassD', 'Диаметр D, мм', 50, '0.1')}
+        ${formulaField('fMassL', 'Длина L, мм', 1000, '1')}
+        ${formulaField('fMassRho', 'Плотность ρ, г/см³', 7.85, '0.01')}
+      </div>
+      <div class="calc-out"><span>Масса</span><b id="fMassOut">—</b></div>
+      <p class="small dim" style="margin:8px 0 0">Сталь ≈ 7,85 · алюминий ≈ 2,70 · латунь ≈ 8,50 · титан ≈ 4,43 г/см³.</p>
+    </div>
+
+    <div class="formula-card">
+      <h3>Теоретическая шероховатость</h3>
+      <span class="formula">Ra ≈ f² / (8 · r) · 1000</span>
+      <div class="calc-row">
+        ${formulaField('fRaF', 'Подача f, мм/об', 0.1, '0.01')}
+        ${formulaField('fRaR', 'Радиус вершины r, мм', 0.8, '0.1')}
+      </div>
+      <div class="calc-out"><span>Шероховатость Ra</span><b id="fRaOut">—</b></div>
+      <p class="small dim" style="margin:8px 0 0">Формула идеальная: без вибраций, нароста и износа кромки. Реальная Ra обычно выше.</p>
+    </div>
+
+    <div class="formula-card">
+      <h3>Резьба: свёрла и диаметры</h3>
+      <span class="formula">сверло ≈ d − P &nbsp;·&nbsp; d2 = d − 0,6495P</span>
+      <div class="calc-row">
+        ${formulaField('fThD', 'Наружный d, мм', 10, '0.1')}
+        ${formulaField('fThP', 'Шаг P, мм', 1.5, '0.05')}
+      </div>
+      <div class="calc-out"><span>Сверло под метчик</span><b id="fThDrill">—</b></div>
+      <div class="calc-out"><span>d2 / d3</span><b id="fThDiam">—</b></div>
+    </div>
+  </div>`;
+}
+
+function initFormulas() {
+  const bind = (ids, fn) => {
+    ids.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', fn);
+    });
+    fn();
+  };
+  const set = (id, html) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  };
+  const read = (id) => num(document.getElementById(id));
+
+  const rpm = () => {
+    const vc = read('fRpmVc');
+    const d = read('fRpmD');
+    const n = 1000 * vc / (Math.PI * d);
+    set('fRpmOut', Number.isFinite(n) && n > 0 ? `${fmt(n, 0)} <small>об/мин</small>` : '—');
+  };
+
+  const speed = () => {
+    const n = read('fVcN');
+    const d = read('fVcD');
+    const vc = Math.PI * d * n / 1000;
+    set('fVcOut', Number.isFinite(vc) && vc > 0 ? `${fmt(vc, 0)} <small>м/мин</small>` : '—');
+  };
+
+  const feed = () => {
+    const n = read('fFeedN');
+    const f = read('fFeedF');
+    const l = read('fFeedL');
+    const vf = n * f;
+    const time = l / vf;
+    set('fFeedVf', Number.isFinite(vf) && vf > 0 ? `${fmt(vf, 0)} <small>мм/мин</small>` : '—');
+    set('fFeedTime', Number.isFinite(time) && time > 0 ? `${formatTime(time)}` : '—');
+  };
+
+  const power = () => {
+    const ap = read('fPowAp');
+    const f = read('fPowF');
+    const vc = read('fPowVc');
+    const kc = read('fPowKc');
+    const p = ap * f * vc * kc / 60000;
+    set('fPowOut', Number.isFinite(p) && p > 0 ? `${fmt(p, 2)} <small>кВт</small>` : '—');
+  };
+
+  const cone = () => {
+    const big = read('fConeD');
+    const small = read('fConeD2');
+    const length = read('fConeL');
+    const diff = big - small;
+    if (!(diff > 0) || !(length > 0)) {
+      set('fConeOut', '—');
+      set('fConeTaper', '—');
+      return;
+    }
+    const angle = 2 * Math.atan(diff / (2 * length)) * 180 / Math.PI;
+    const ratio = length / diff;
+    set('fConeOut', `${fmt(angle, 2)}<small>°</small>`);
+    set('fConeTaper', `1:${fmt(ratio, 1)}`);
+  };
+
+  const hex = () => {
+    const s = read('fHexS');
+    const d = s / Math.cos(Math.PI / 6);
+    if (Number.isFinite(d) && d > 0) {
+      set('fHexOut', `${fmt(d, 2)} <small>мм</small>`);
+      const reverse = document.getElementById('fHexD');
+      if (reverse && document.activeElement !== reverse) reverse.value = r2(d);
+    } else {
+      set('fHexOut', '—');
+    }
+  };
+
+  const hexReverse = () => {
+    const d = read('fHexD');
+    const s = d * Math.cos(Math.PI / 6);
+    if (Number.isFinite(s) && s > 0) {
+      set('fHexOut', `${fmt(d, 2)} <small>мм</small>`);
+      const reverse = document.getElementById('fHexS');
+      if (reverse && document.activeElement !== reverse) reverse.value = r2(s);
+    } else {
+      set('fHexOut', '—');
+    }
+  };
+
+  const mass = () => {
+    const d = read('fMassD');
+    const length = read('fMassL');
+    const rho = read('fMassRho');
+    const kg = Math.PI / 4 * d * d * length * rho / 1000000;
+    set('fMassOut', Number.isFinite(kg) && kg > 0 ? `${fmt(kg, 2)} <small>кг</small>` : '—');
+  };
+
+  const roughness = () => {
+    const f = read('fRaF');
+    const r = read('fRaR');
+    const ra = f * f / (8 * r) * 1000;
+    set('fRaOut', Number.isFinite(ra) && ra > 0 ? `${fmt(ra, 2)} <small>мкм</small>` : '—');
+  };
+
+  const thread = () => {
+    const d = read('fThD');
+    const p = read('fThP');
+    if (!(d > 0) || !(p > 0)) {
+      set('fThDrill', '—');
+      set('fThDiam', '—');
+      return;
+    }
+    set('fThDrill', `${String(r1(d - p)).replace('.', ',')} <small>мм</small>`);
+    set('fThDiam', `${String(r2(d - 0.6495 * p)).replace('.', ',')} / ${String(r2(d - 1.2269 * p)).replace('.', ',')} <small>мм</small>`);
+  };
+
+  bind(['fRpmVc', 'fRpmD'], rpm);
+  bind(['fVcN', 'fVcD'], speed);
+  bind(['fFeedN', 'fFeedF', 'fFeedL'], feed);
+  bind(['fPowAp', 'fPowF', 'fPowVc', 'fPowKc'], power);
+  bind(['fConeD', 'fConeD2', 'fConeL'], cone);
+  bind(['fHexS'], hex);
+  const hexD = document.getElementById('fHexD');
+  if (hexD) hexD.addEventListener('input', hexReverse);
+  bind(['fMassD', 'fMassL', 'fMassRho'], mass);
+  bind(['fRaF', 'fRaR'], roughness);
+  bind(['fThD', 'fThP'], thread);
+}
+
+</script>
+<script>
+'use strict';
+
+/* ============================================================
+   Металлы, инструмент, ЧПУ
+   ============================================================ */
+
+function machBadge(material) {
+  const info = MACHINABILITY[material.mach] || MACHINABILITY[2];
+  return `<span class="badge ${info.cls}">${info.name}</span>`;
+}
+
+function materialCard(material) {
+  return `
+  <div class="mat-card">
+    <div class="mat-head">
+      <h3>${esc(material.name)}</h3>
+      ${machBadge(material)}
+    </div>
+    <p class="mat-desc">${esc(material.desc)}</p>
+    <div class="mat-stats">
+      <div class="mat-stat"><span>Твёрдость</span><b>${material.hb} HB</b></div>
+      <div class="mat-stat"><span>Группа</span><b>${material.group}</b></div>
+      <div class="mat-stat"><span>HSS</span><b>${material.vcHss[0]}–${material.vcHss[1]} м/мин</b></div>
+      <div class="mat-stat"><span>Твёрдый сплав</span><b>${material.vcCarb[0]}–${material.vcCarb[1]} м/мин</b></div>
+      <div class="mat-stat"><span>Подача</span><b>${String(material.feed[0]).replace('.', ',')}–${String(material.feed[1]).replace('.', ',')} мм/об</b></div>
+      <div class="mat-stat"><span>Глубина ap</span><b>${String(material.ap[0]).replace('.', ',')}–${String(material.ap[1]).replace('.', ',')} мм</b></div>
+    </div>
+    <p class="mat-note">${esc(material.note)}</p>
+    <p class="mat-use">Применение: ${esc(material.use)}</p>
+    <button class="btn btn-sm" type="button" data-mat="${material.id}">${icon('modes')} Рассчитать режим</button>
+  </div>`;
+}
+
+function renderMaterials() {
+  const groups = ['Все', ...new Set(MATERIALS.map((m) => m.group))];
+  const counts = Object.fromEntries(groups.map((group) => [
+    group,
+    group === 'Все' ? MATERIALS.length : MATERIALS.filter((m) => m.group === group).length
+  ]));
+  return `
+  <div class="page-head">
+    <div>
+      <span class="eyebrow">Справочник</span>
+      <h2>Металлы</h2>
+      <p>Марки, твёрдость, обрабатываемость и ориентировочные режимы. Нажмите «Рассчитать режим» — материал подставится в калькулятор.</p>
+    </div>
+    <div class="chips no-print">
+      <a class="btn btn-sm" href="#modes">${icon('modes')} Калькулятор</a>
+      <a class="btn btn-sm" href="#tools">${icon('tools')} Инструмент</a>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="search">
+      ${icon('search')}
+      <input id="matSearch" class="input" type="search" placeholder="Поиск: 40Х, нержавейка, чугун, алюминий...">
+    </div>
+    <span class="badge gray" id="matCount">${MATERIALS.length} марок</span>
+  </div>
+  <div class="chips" id="matChips" style="margin-bottom:16px">
+    ${groups.map((group) => `<button type="button" class="chip${group === 'Все' ? ' active' : ''}" data-group="${esc(group)}">${esc(group)} <span class="count">${counts[group]}</span></button>`).join('')}
+  </div>
+
+  <div class="mat-grid" id="matGrid"></div>`;
+}
+
+function initMaterials() {
+  const grid = $('#matGrid');
+  const search = $('#matSearch');
+  const chips = $('#matChips');
+  if (!grid || !search || !chips) return;
+  let activeGroup = 'Все';
+
+  const renderList = () => {
+    const query = search.value.trim().toLowerCase();
+    const list = MATERIALS.filter((material) => {
+      if (activeGroup !== 'Все' && material.group !== activeGroup) return false;
+      if (!query) return true;
+      return [material.name, material.group, material.desc, material.note, material.use]
+        .join(' ').toLowerCase().includes(query);
+    });
+    grid.innerHTML = list.length
+      ? list.map(materialCard).join('')
+      : '<div class="empty"><b>Ничего не найдено</b>Попробуйте другую марку или сбросьте фильтр группы.</div>';
+    const count = $('#matCount');
+    if (count) count.textContent = `${list.length} из ${MATERIALS.length}`;
+  };
+
+  chips.addEventListener('click', (event) => {
+    const chip = event.target.closest('[data-group]');
+    if (!chip) return;
+    activeGroup = chip.dataset.group;
+    $$('.chip', chips).forEach((item) => item.classList.toggle('active', item === chip));
+    renderList();
+  });
+  search.addEventListener('input', renderList);
+
+  grid.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-mat]');
+    if (!button) return;
+    try { sessionStorage.setItem('turner:mat', button.dataset.mat); } catch { /* ignore */ }
+    location.hash = 'modes';
+  });
+
+  renderList();
+}
+
+/* ---------------- инструмент ---------------- */
+function simpleTable(headers, rows, wrapClass = 'short') {
+  return `<div class="table-wrap ${wrapClass}"><table class="data">
+    <thead><tr>${headers.map((head) => `<th>${head}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map((row) => `<tr>${row.map((cell) => `<td class="wrap">${cell}</td>`).join('')}</tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+function renderTools() {
+  const toolRows = TOOL_TYPES.map((tool) => [`<b>${tool.name}</b>`, tool.use, tool.note]);
+  const geometryRows = GEOMETRY.map((item) => [
+    item.material, item.gamma, item.alpha, item.radius, item.note
+  ]);
+  const plateRows = PLATES.map((plate) => [
+    `<b class="mono">${plate.iso}</b>`, plate.shape, plate.edges, plate.use, plate.note
+  ]);
+  const drillRows = DRILLING.map((item) => [
+    item.material,
+    `${item.hss} м/мин`,
+    `${item.carb} м/мин`,
+    `${item.feed} мм/об`,
+    item.note
+  ]);
+  const coolantRows = COOLANTS.map((item) => [item.material, item.lube, item.note]);
+
+  return `
+  <div class="page-head">
+    <div>
+      <span class="eyebrow">Резцы · пластины · СОЖ</span>
+      <h2>Инструмент и охлаждение</h2>
+      <p>Типы резцов, геометрия заточки по материалам, обозначения пластин ISO, режимы сверления и выбор СОЖ.</p>
+    </div>
+    <div class="chips no-print">
+      <a class="btn btn-sm" href="#modes">${icon('modes')} Режимы</a>
+      <a class="btn btn-sm" href="#threads">${icon('threads')} Резьба</a>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Типы резцов</h3>
+      <p class="table-caption">Минимальный вылет и жёсткий зажим важнее марки пластины.</p>
+      ${simpleTable(['Резец', 'Для чего', 'Особенности'], toolRows)}
+    </div>
+    <div class="card">
+      <h3>Геометрия заточки</h3>
+      <p class="table-caption">γ — передний угол, α — задний, r — радиус вершины. Для твёрдых материалов углы меньше.</p>
+      ${simpleTable(['Материал', 'γ', 'α', 'r', 'Примечание'], geometryRows)}
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3>Пластины ISO</h3>
+    <p class="table-caption">Первая буква — форма, вторая — задний угол (N = 0°, C = 7°, P = 11°, D = 15°). M — отверстие и стружколом, G — шлифованная.</p>
+    ${simpleTable(['Обозначение', 'Форма', 'Кромок', 'Применение', 'Особенности'], plateRows)}
+  </div>
+
+  <div class="grid-2" style="margin-top:16px">
+    <div class="card">
+      <h3>Сверление</h3>
+      <p class="table-caption">Скорости ниже, чем при точении. Для глубоких отверстий — периодический вывод сверла.</p>
+      ${simpleTable(['Материал', 'HSS', 'Тв. сплав', 'Подача', 'Примечание'], drillRows)}
+    </div>
+    <div class="card">
+      <h3>СОЖ</h3>
+      <p class="table-caption">Подводите жидкость в зону резания, а не «рядом». Для чугуна часто лучше сухая обработка с отсосом.</p>
+      ${simpleTable(['Материал', 'СОЖ', 'Примечание'], coolantRows)}
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="card-head">
+      <h3>Техника безопасности</h3>
+      <span class="badge red">не пренебрегайте</span>
+    </div>
+    <ul class="list-check">
+      ${SAFETY.map((item) => `<li>${item}</li>`).join('')}
+    </ul>
+  </div>`;
+}
+
+/* ---------------- ЧПУ ---------------- */
+const CNC_CYCLES = [
+  { code: 'G71', name: 'Черновой цикл точения', text: 'Снимает основной припуск по заданному контуру. На Fanuc — две строки: параметры и контур P/Q.', syntax: 'G71 U… R…\nG71 P… Q… U… W… F…' },
+  { code: 'G70', name: 'Чистовой проход', text: 'Проходит контур после G71/G72 с чистовой подачей. Контур должен быть описан между N-блоками.', syntax: 'G70 P… Q… F…' },
+  { code: 'G76', name: 'Резьбовой цикл', text: 'Многопроходная нарезка с заданным углом, глубиной и числом чистовых проходов. Обороты — постоянные (G97).', syntax: 'G76 P… Q… R…\nG76 X… Z… P… Q… F…' },
+  { code: 'G75', name: 'Канавка и отрезка', text: 'Радиальные канавки и отрезка с дроблением стружки. P — шаг по X, Q — смещение по Z.', syntax: 'G75 R…\nG75 X… Z… P… Q… F…' },
+  { code: 'G74', name: 'Осевое сверление', text: 'Сверление по оси с периодическим выводом. Q — глубина одного прохода в микронах.', syntax: 'G74 R…\nG74 Z… Q… F…' },
+  { code: 'G96', name: 'Постоянная Vc', text: 'Обороты автоматически растут на малом диаметре. Обязательно ограничивайте максимум через G50.', syntax: 'G50 S…\nG96 S… M03' }
+];
+
+function renderCnc() {
+  const gRows = GCODES.map((item) => [
+    `<b class="mono">${item.code}</b>`, item.desc, item.note
+  ]);
+  const mRows = MCODES.map((item) => [
+    `<b class="mono">${item.code}</b>`, item.desc, item.note
+  ]);
+  const diffRows = CNC_DIFF.map((item) => [
+    item.param, `<span class="mono">${item.fanuc}</span>`, `<span class="mono">${item.siemens}</span>`
+  ]);
+
+  return `
+  <div class="page-head">
+    <div>
+      <span class="eyebrow">Fanuc · Siemens · GSK</span>
+      <h2>ЧПУ для токаря</h2>
+      <p>Шпаргалка по G- и M-кодам, токарные циклы, готовые программы и различия стоек. Перед пуском проверяйте коррекции и безопасные подводы.</p>
+    </div>
+    <div class="chips no-print">
+      <a class="btn btn-sm" href="cnc_lathe.html" target="_blank" rel="noopener">${icon('cnc')} Симулятор станка ↗</a>
+      <a class="btn btn-sm" href="#formulas">${icon('formulas')} Формулы</a>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>G-коды</h3>
+      <p class="table-caption">Базовый набор Fanuc. На разных стойках значения G-кодов могут отличаться.</p>
+      <div class="table-wrap tall"><table class="data">
+        <thead><tr><th>Код</th><th>Назначение</th><th>Примечание</th></tr></thead>
+        <tbody>${gRows.map((row) => `<tr><td>${row[0]}</td><td class="wrap">${row[1]}</td><td class="wrap">${row[2]}</td></tr>`).join('')}</tbody>
+      </table></div>
+    </div>
+    <div class="card">
+      <h3>M-коды</h3>
+      <p class="table-caption">Вспомогательные команды. M03/M04 — направление шпинделя, M08/M09 — СОЖ.</p>
+      <div class="table-wrap tall"><table class="data">
+        <thead><tr><th>Код</th><th>Назначение</th><th>Примечание</th></tr></thead>
+        <tbody>${mRows.map((row) => `<tr><td>${row[0]}</td><td class="wrap">${row[1]}</td><td class="wrap">${row[2]}</td></tr>`).join('')}</tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3>Токарные циклы</h3>
+    <p class="table-caption">Синтаксис для Fanuc. Перед использованием сверьтесь с руководством стойки — на GSK и Siemens параметры могут отличаться.</p>
+    <div class="cycle-grid">
+      ${CNC_CYCLES.map((cycle) => `
+        <div class="cycle-card">
+          <h4><code>${cycle.code}</code> ${cycle.name}</h4>
+          <p>${cycle.text}</p>
+          <span class="syntax">${esc(cycle.syntax)}</span>
+        </div>`).join('')}
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3>Примеры программ</h3>
+    <p class="table-caption">Учебные примеры. Проверяйте геометрию, коррекции и лимиты под свой станок.</p>
+    ${CNC_PROGRAMS.map((program, index) => `
+      <div class="program">
+        <div class="program-head">
+          <div><h3>${program.title}</h3><p>${program.desc}</p></div>
+          <span class="badge amber">Fanuc</span>
+        </div>
+        <div class="code-block">
+          <button class="code-copy" type="button" data-copy-target="prog${index}">Копировать</button>
+          <pre id="prog${index}">${highlightCode(program.code)}</pre>
+        </div>
+      </div>`).join('')}
+  </div>
+
+  <div class="grid-2" style="margin-top:16px">
+    <div class="card">
+      <h3>Fanuc и Siemens: отличия</h3>
+      <p class="table-caption">Один и тот же смысл — разные команды. Проверяйте постпроцессор.</p>
+      ${simpleTable(['Параметр', 'Fanuc', 'Siemens'], diffRows)}
+    </div>
+    <div class="card">
+      <h3>Практика на станке</h3>
+      <ul class="list-check">
+        ${CNC_TIPS.map((tip) => `<li>${esc(tip)}</li>`).join('')}
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="card-head">
+      <div>
+        <h3>Симулятор токарного станка с ЧПУ</h3>
+        <p class="small dim" style="margin:4px 0 0">Отдельная страница с визуализацией обработки: можно вставить G-код и посмотреть траекторию.</p>
+      </div>
+      <a class="btn btn-sm" href="cnc_lathe.html" target="_blank" rel="noopener">Открыть ${icon('arrow')}</a>
+    </div>
+  </div>`;
+}
+
+</script>
+<script>
+'use strict';
+
+/* ============================================================
+   Дневник, маршрутизация и запуск приложения
+   ============================================================ */
+
+function getDiary() {
+  let list = [];
+  try {
+    list = JSON.parse(store.get(DIARY_KEY, '[]'));
+  } catch { list = []; }
+  if (!Array.isArray(list)) return [];
+  return list
+    .filter((entry) => entry && typeof entry === 'object')
+    .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')) || (b.createdAt || 0) - (a.createdAt || 0));
+}
+
+function saveDiary(list) {
+  store.set(DIARY_KEY, JSON.stringify(list));
+}
+
+function entryCard(entry) {
+  const vc = entry.d > 0 && entry.n > 0 ? Math.PI * entry.d * entry.n / 1000 : null;
+  return `
+  <div class="entry">
+    <div class="entry-head">
+      <div class="entry-title">
+        <b>${esc(entry.part || 'Без названия')}</b>
+        ${entry.material ? `<span class="badge gray">${esc(entry.material)}</span>` : ''}
+      </div>
+      <div class="entry-side">
+        <span class="entry-date">${formatDate(entry.date)}</span>
+        <button class="entry-del" type="button" data-del="${esc(entry.id)}" title="Удалить запись" aria-label="Удалить запись">×</button>
+      </div>
+    </div>
+    <div class="entry-meta">
+      ${entry.shift ? `<span class="badge">Смена ${esc(entry.shift)}</span>` : ''}
+      ${entry.operation ? `<span class="badge">${esc(entry.operation)}</span>` : ''}
+      ${entry.tool ? `<span class="badge">${esc(entry.tool)}</span>` : ''}
+      ${entry.time ? `<span class="badge"><span class="mono">${fmt(entry.time, 0)}</span> мин</span>` : ''}
+    </div>
+    <div class="entry-values">
+      ${entry.d ? `<span class="badge cyan">Ø ${fmt(entry.d, 1)} мм</span>` : ''}
+      ${entry.n ? `<span class="badge">n = ${fmt(entry.n, 0)} об/мин</span>` : ''}
+      ${entry.f ? `<span class="badge">f = ${fmt(entry.f, 2)} мм/об</span>` : ''}
+      ${entry.ap ? `<span class="badge">ap = ${fmt(entry.ap, 1)} мм</span>` : ''}
+      ${vc ? `<span class="badge amber">Vc = ${fmt(vc, 0)} м/мин</span>` : ''}
+    </div>
+    ${entry.note ? `<p class="entry-note">${esc(entry.note)}</p>` : ''}
+  </div>`;
+}
+
+function diaryStats(entries) {
+  const totalTime = entries.reduce((sum, entry) => sum + (Number(entry.time) || 0), 0);
+  const materials = new Set(entries.map((entry) => entry.material).filter(Boolean));
+  const vcValues = entries
+    .filter((entry) => entry.d > 0 && entry.n > 0)
+    .map((entry) => Math.PI * entry.d * entry.n / 1000);
+  const avgVc = vcValues.length ? vcValues.reduce((sum, value) => sum + value, 0) / vcValues.length : null;
+  return { totalTime, materials: materials.size, avgVc };
+}
+
+function refreshDiary() {
+  const listEl = $('#dList');
+  if (!listEl) return;
+  const entries = getDiary();
+  const stats = diaryStats(entries);
+  const statsEl = $('#dStats');
+  if (statsEl) {
+    statsEl.innerHTML = `
+      <div class="diary-stat"><b>${entries.length}</b><span>записей</span></div>
+      <div class="diary-stat"><b>${stats.totalTime ? fmt(stats.totalTime, 0) : '0'}</b><span>минут работы</span></div>
+      <div class="diary-stat"><b>${stats.materials}</b><span>материалов</span></div>
+      <div class="diary-stat"><b>${stats.avgVc ? fmt(stats.avgVc, 0) : '—'}</b><span>средняя Vc</span></div>`;
+  }
+
+  const query = ($('#dSearch')?.value || '').trim().toLowerCase();
+  const filtered = entries.filter((entry) => {
+    if (!query) return true;
+    return [entry.part, entry.material, entry.operation, entry.tool, entry.note, entry.date, entry.shift]
+      .join(' ').toLowerCase().includes(query);
+  });
+
+  listEl.innerHTML = filtered.length
+    ? filtered.map(entryCard).join('')
+    : `<div class="empty"><b>${entries.length ? 'Ничего не найдено' : 'Дневник пока пуст'}</b>${entries.length ? 'Измените поисковый запрос.' : 'Заполните форму слева — дата, деталь, материал и режим. Записи хранятся в браузере.'}</div>`;
+
+  const count = $('#dCount');
+  if (count) count.textContent = String(entries.length);
+}
+
+function renderDiary() {
+  return `
+  <div class="page-head">
+    <div>
+      <span class="eyebrow">Личный журнал</span>
+      <h2>Дневник токаря</h2>
+      <p>Записывайте детали, материалы, режимы и замечания. Данные хранятся в браузере — их можно выгрузить в JSON или CSV.</p>
+    </div>
+    <div class="chips no-print">
+      <button class="btn btn-sm" type="button" id="dExportJson">${icon('download')} JSON</button>
+      <button class="btn btn-sm" type="button" id="dExportCsv">CSV</button>
+      <button class="btn btn-sm" type="button" id="dImportBtn">${icon('upload')} Импорт</button>
+      <button class="btn btn-sm" type="button" id="dPrint">${icon('print')} Печать</button>
+      <input type="file" id="dFile" accept=".json,application/json" hidden>
+    </div>
+  </div>
+
+  <div class="diary-stats" id="dStats"></div>
+
+  <div class="diary-layout">
+    <div class="card no-print">
+      <h3>Новая запись</h3>
+      <form id="dForm" autocomplete="off">
+        <div class="form-grid">
+          <div class="field">
+            <label for="dDate">Дата</label>
+            <input id="dDate" class="input" type="date" value="${todayISO()}">
+          </div>
+          <div class="field">
+            <label for="dShift">Смена</label>
+            <select id="dShift" class="select">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
+          </div>
+          <div class="field span-2">
+            <label for="dPart">Деталь / заказ *</label>
+            <input id="dPart" class="input" type="text" maxlength="120" placeholder="Вал привода, заказ 128" required>
+          </div>
+          <div class="field">
+            <label for="dMat">Материал</label>
+            <select id="dMat" class="select">${materialOptions('40xl', false)}</select>
+          </div>
+          <div class="field">
+            <label for="dOp">Операция</label>
+            <select id="dOp" class="select">
+              ${DIARY_OPERATIONS.map((item) => `<option>${item}</option>`).join('')}
+            </select>
+          </div>
+          <div class="field">
+            <label for="dTool">Инструмент</label>
+            <select id="dTool" class="select">
+              ${DIARY_TOOLS.map((item) => `<option>${item}</option>`).join('')}
+            </select>
+          </div>
+          <div class="field">
+            <label for="dD">Диаметр, мм</label>
+            <input id="dD" class="input mono" type="number" min="0" step="0.1" placeholder="50">
+          </div>
+          <div class="field">
+            <label for="dN">Обороты, об/мин</label>
+            <input id="dN" class="input mono" type="number" min="0" step="1" placeholder="800">
+          </div>
+          <div class="field">
+            <label for="dF">Подача, мм/об</label>
+            <input id="dF" class="input mono" type="number" min="0" step="0.01" placeholder="0.2">
+          </div>
+          <div class="field">
+            <label for="dAp">Глубина, мм</label>
+            <input id="dAp" class="input mono" type="number" min="0" step="0.1" placeholder="1.5">
+          </div>
+          <div class="field">
+            <label for="dTime">Время, мин</label>
+            <input id="dTime" class="input mono" type="number" min="0" step="1" placeholder="25">
+          </div>
+          <div class="field span-2">
+            <label for="dNote">Заметка</label>
+            <textarea id="dNote" maxlength="1200" placeholder="Что получилось, что менять, состояние инструмента..."></textarea>
+          </div>
+        </div>
+        <div class="quick-result" id="dVcPreview" style="margin-top:12px"></div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">${icon('plus')} Сохранить запись</button>
+          <span class="field-hint">Поля со звёздочкой обязательны.</span>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h3>Записи <span class="badge" id="dCount">0</span></h3>
+      </div>
+      <div class="diary-toolbar no-print">
+        <div class="search">
+          ${icon('search')}
+          <input id="dSearch" class="input" type="search" placeholder="Поиск по детали, материалу, заметке...">
+        </div>
+        <button class="btn btn-sm btn-danger" type="button" id="dClear">${icon('trash')} Очистить</button>
+      </div>
+      <div class="entry-list" id="dList"></div>
+    </div>
+  </div>`;
+}
+
+function initDiary() {
+  const form = $('#dForm');
+  if (!form) return;
+
+  const updatePreview = () => {
+    const d = num($('#dD'));
+    const n = num($('#dN'));
+    const preview = $('#dVcPreview');
+    if (!preview) return;
+    if (d > 0 && n > 0) {
+      const vc = Math.PI * d * n / 1000;
+      preview.innerHTML = `
+        <div class="qf-row"><span>Скорость резания</span><b>${fmt(vc, 0)} м/мин</b></div>
+        <div class="qf-note">Vc = π · D · n / 1000. Значение сохранится вместе с записью.</div>`;
+    } else {
+      preview.innerHTML = '<div class="qf-note">Укажите диаметр и обороты — скорость резания посчитается автоматически.</div>';
+    }
+  };
+
+  ['dD', 'dN'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', updatePreview);
+  });
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const part = $('#dPart').value.trim();
+    if (!part) {
+      toast('Укажите деталь или заказ', 'err');
+      $('#dPart').focus();
+      return;
+    }
+    const material = materialById($('#dMat').value);
+    const entry = {
+      id: uid(),
+      date: $('#dDate').value || todayISO(),
+      shift: $('#dShift').value,
+      part,
+      material: material.name,
+      operation: $('#dOp').value,
+      tool: $('#dTool').value,
+      d: num($('#dD')) || null,
+      n: num($('#dN')) || null,
+      f: num($('#dF')) || null,
+      ap: num($('#dAp')) || null,
+      time: num($('#dTime')) || null,
+      note: $('#dNote').value.trim(),
+      createdAt: Date.now()
+    };
+    saveDiary([entry, ...getDiary()]);
+    ['dPart', 'dD', 'dN', 'dF', 'dAp', 'dTime', 'dNote'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    $('#dDate').value = todayISO();
+    updatePreview();
+    refreshDiary();
+    toast('Запись сохранена в дневник');
+  });
+
+  $('#dSearch').addEventListener('input', refreshDiary);
+
+  $('#dList').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-del]');
+    if (!button) return;
+    if (!confirm('Удалить эту запись?')) return;
+    saveDiary(getDiary().filter((entry) => String(entry.id) !== String(button.dataset.del)));
+    refreshDiary();
+    toast('Запись удалена');
+  });
+
+  $('#dExportJson').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(getDiary(), null, 2)], { type: 'application/json;charset=utf-8' });
+    downloadBlob(blob, `turner-diary-${todayISO()}.json`);
+    toast('JSON выгружен');
+  });
+
+  $('#dExportCsv').addEventListener('click', () => {
+    const header = ['Дата', 'Смена', 'Деталь', 'Материал', 'Операция', 'Инструмент', 'D, мм', 'n, об/мин', 'f, мм/об', 'ap, мм', 'Vc, м/мин', 'Время, мин', 'Заметка'];
+    const rows = getDiary().map((entry) => {
+      const vc = entry.d > 0 && entry.n > 0 ? r1(Math.PI * entry.d * entry.n / 1000) : '';
+      return [entry.date, entry.shift, entry.part, entry.material, entry.operation, entry.tool,
+        entry.d, entry.n, entry.f, entry.ap, vc, entry.time, entry.note];
+    });
+    const csv = '\ufeff' + [header, ...rows].map((row) => row.map(csvCell).join(';')).join('\r\n');
+    downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), `turner-diary-${todayISO()}.csv`);
+    toast('CSV выгружен для Excel');
+  });
+
+  $('#dImportBtn').addEventListener('click', () => $('#dFile').click());
+  $('#dFile').addEventListener('change', async (event) => {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    try {
+      const parsed = JSON.parse(await file.text());
+      if (!Array.isArray(parsed)) throw new Error('not array');
+      const existing = getDiary();
+      const seen = new Set(existing.map((entry) => String(entry.id)));
+      const additions = [];
+      parsed.forEach((raw) => {
+        if (!raw || typeof raw !== 'object' || !raw.part) return;
+        const entry = {
+          ...raw,
+          id: raw.id ? String(raw.id) : uid(),
+          createdAt: raw.createdAt || Date.now()
+        };
+        if (seen.has(entry.id)) return;
+        seen.add(entry.id);
+        additions.push(entry);
+      });
+      saveDiary([...additions, ...existing]);
+      refreshDiary();
+      toast(`Импортировано записей: ${additions.length}`);
+    } catch {
+      toast('Не удалось прочитать JSON-файл', 'err');
+    }
+    event.target.value = '';
+  });
+
+  $('#dPrint').addEventListener('click', () => window.print());
+
+  $('#dClear').addEventListener('click', () => {
+    if (!getDiary().length) {
+      toast('Дневник уже пуст');
+      return;
+    }
+    if (!confirm('Удалить все записи дневника? Это действие нельзя отменить.')) return;
+    store.del(DIARY_KEY);
+    refreshDiary();
+    toast('Дневник очищен');
+  });
+
+  updatePreview();
+  refreshDiary();
+}
+
+/* ---------------- маршруты ---------------- */
+const ROUTES = {
+  home: { title: 'Обзор', subtitle: 'Сводка и быстрый расчёт', icon: 'home', nav: 'Обзор', render: renderHome, init: initHome },
+  modes: { title: 'Режимы резания', subtitle: 'Обороты, подача, мощность и время', icon: 'modes', nav: 'Режимы', render: renderModes, init: initModes },
+  tolerances: { title: 'Допуски и посадки', subtitle: 'ISO 286: квалитеты, поля допусков, посадки', icon: 'tolerances', nav: 'Допуски', render: renderTolerances, init: initTolerances },
+  threads: { title: 'Резьба и метчики', subtitle: 'Свёрла, метчики, плашки и размеры резьбы', icon: 'threads', nav: 'Резьба', render: renderThreads, init: initThreads },
+  materials: { title: 'Металлы', subtitle: 'Марки, твёрдость, обрабатываемость, режимы', icon: 'materials', nav: 'Металлы', render: renderMaterials, init: initMaterials },
+  tools: { title: 'Инструмент и СОЖ', subtitle: 'Резцы, пластины, геометрия, охлаждение', icon: 'tools', nav: 'Инструмент', render: renderTools },
+  cnc: { title: 'ЧПУ', subtitle: 'G-коды, циклы и примеры программ', icon: 'cnc', nav: 'ЧПУ', render: renderCnc },
+  formulas: { title: 'Формулы', subtitle: 'Конус, масса, время, шероховатость', icon: 'formulas', nav: 'Формулы', render: renderFormulas, init: initFormulas },
+  diary: { title: 'Дневник', subtitle: 'Личный журнал работ и режимов', icon: 'diary', nav: 'Дневник', render: renderDiary, init: initDiary }
+};
+
+const NAV_GROUPS = [
+  { label: 'Расчёты', keys: ['home', 'modes', 'tolerances', 'threads'] },
+  { label: 'Справочники', keys: ['materials', 'tools', 'cnc', 'formulas'] },
+  { label: 'Смена', keys: ['diary'] }
+];
+
+function renderNav() {
+  const nav = $('#nav');
+  if (!nav) return;
+  nav.innerHTML = NAV_GROUPS.map((group) => `
+    <div class="nav-group">${group.label}</div>
+    ${group.keys.map((key) => {
+      const route = ROUTES[key];
+      return `<a class="nav-link" data-route="${key}" href="#${key}">${icon(route.icon)}<span>${route.nav || route.title}</span></a>`;
+    }).join('')}`).join('');
+}
+
+function updateToday() {
+  const el = $('#today');
+  if (!el) return;
+  const text = new Date().toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'long' });
+  el.textContent = text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+function route() {
+  let key = (location.hash || '').replace(/^#\/?/, '').trim() || 'home';
+  if (!ROUTES[key]) key = 'home';
+  const current = ROUTES[key];
+  const view = $('#view');
+  view.innerHTML = current.render();
+  const title = $('#pageTitle');
+  const sub = $('#pageSub');
+  if (title) title.textContent = current.title;
+  if (sub) sub.textContent = current.subtitle;
+  document.title = `${current.title} — Дневник токаря`;
+  $$('.nav-link').forEach((link) => link.classList.toggle('active', link.dataset.route === key));
+  document.body.classList.remove('sidebar-open');
+  window.scrollTo(0, 0);
+  if (typeof current.init === 'function') current.init();
+}
+
+function initApp() {
+  renderNav();
+  initTheme();
+  updateToday();
+
+  const menuBtn = $('#menuBtn');
+  const overlay = $('#overlay');
+  if (menuBtn) menuBtn.addEventListener('click', () => document.body.classList.toggle('sidebar-open'));
+  if (overlay) overlay.addEventListener('click', () => document.body.classList.remove('sidebar-open'));
+
+  window.addEventListener('hashchange', route);
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') document.body.classList.remove('sidebar-open');
+  });
+  document.addEventListener('click', async (event) => {
+    const button = event.target.closest('[data-copy-target]');
+    if (!button) return;
+    const target = document.getElementById(button.dataset.copyTarget);
+    if (target) await copyText(target.textContent);
+  });
+
+  route();
+}
+
+document.addEventListener('DOMContentLoaded', initApp);
+
+</script>
+
 </body>
 </html>
