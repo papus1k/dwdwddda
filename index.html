@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Дневник токаря: калькулятор режимов резания, допуски и посадки ISO 286, таблицы метчиков и плашек, марки металлов, ЧПУ и личный журнал работ.">
+  <meta name="theme-color" content="#0a0e13">
+  <title>Дневник токаря — режимы, допуски, резьба, ЧПУ</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f6a723'/%3E%3Cpath d='M18 20h28v7H35v22h-8V27H18z' fill='%231b1200'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar" aria-label="Основная навигация">
+      <a class="logo" href="#home">
+        <span class="logo-mark">Т</span>
+        <span class="logo-text">
+          <b>ТОКАРЬ<span>PRO</span></b>
+          <small>дневник и справочник</small>
+        </span>
+      </a>
+      <nav class="nav" id="nav"></nav>
+      <div class="sidebar-foot">
+        <div class="sidebar-note">
+          <span class="dot"></span>
+          Данные справочные. Сверяйтесь с ГОСТ, паспортом станка и документацией на инструмент.
+        </div>
+        <div class="sidebar-version">v1.0 · офлайн · без регистрации</div>
+      </div>
+    </aside>
+
+    <div class="overlay" id="overlay"></div>
+
+    <div class="main">
+      <header class="topbar no-print">
+        <div class="topbar-left">
+          <button class="icon-btn menu-btn" id="menuBtn" aria-label="Открыть меню">☰</button>
+          <div class="titles">
+            <h1 id="pageTitle">Обзор</h1>
+            <div class="sub" id="pageSub">Главная страница справочника</div>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="today" id="today"></div>
+          <button class="icon-btn" id="themeBtn" aria-label="Переключить тему" title="Светлая / тёмная тема">☀</button>
+        </div>
+      </header>
+
+      <main class="view" id="view" tabindex="-1"></main>
+
+      <footer class="footer no-print">
+        <span>Дневник токаря · режимы, допуски, резьба, ЧПУ</span>
+        <span>Справочные данные · проверяйте перед работой</span>
+      </footer>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <noscript>
+    <div style="position:fixed;inset:0;display:grid;place-items:center;padding:24px;background:#0a0e13;color:#e8eef5;font:15px/1.6 system-ui,sans-serif;text-align:center;z-index:9999">
+      Для работы справочника и калькуляторов включите JavaScript в браузере.
+    </div>
+  </noscript>
+
+  <script src="data.js"></script>
+  <script src="app-util.js"></script>
+  <script src="app-home.js"></script>
+  <script src="app-modes.js"></script>
+  <script src="app-tol.js"></script>
+  <script src="app-threads.js"></script>
+  <script src="app-formulas.js"></script>
+  <script src="app-ref.js"></script>
+  <script src="app-diary.js"></script>
+</body>
+</html>
